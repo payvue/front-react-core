@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -42,6 +42,11 @@ export function ProductModal({ product, isOpen, onClose, onToggleLike, onPurchas
   const [paymentMethod, setPaymentMethod] = useState<"personal" | "group">("personal")
   const [selectedGroup, setSelectedGroup] = useState<string>("")
   const [showIframe, setShowIframe] = useState(false)
+  const [isLiked, setIsLiked] = useState<boolean>(product?.isLiked ?? false)
+
+  useEffect(() => {
+    setIsLiked(product?.isLiked ?? false)
+  }, [product?.id, product?.isLiked])
 
   if (!product) return null
 
@@ -85,7 +90,7 @@ export function ProductModal({ product, isOpen, onClose, onToggleLike, onPurchas
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-hidden flex flex-col">
+      <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-hidden flex flex-col" showCloseButton={false}>
         <DialogHeader className="flex-shrink-0">
           <DialogTitle className="flex items-center justify-between">
             <span>상품 상세 정보</span>
@@ -144,15 +149,18 @@ export function ProductModal({ product, isOpen, onClose, onToggleLike, onPurchas
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => onToggleLike(product.id)}
+                    onClick={() => {
+                      setIsLiked((prev) => !prev)
+                      onToggleLike(product.id)
+                    }}
                     className="flex items-center gap-2 transition-all duration-300 hover:scale-105"
                   >
                     <Heart
                       className={`h-4 w-4 transition-all duration-300 ${
-                        product.isLiked ? "fill-red-500 text-red-500 scale-110" : "hover:text-red-400"
+                        isLiked ? "fill-red-500 text-red-500 scale-110" : "hover:text-red-400"
                       }`}
                     />
-                    {product.isLiked ? "좋아요 취소" : "좋아요"}
+                    {isLiked ? "좋아요 취소" : "좋아요"}
                   </Button>
 
                   <Button
