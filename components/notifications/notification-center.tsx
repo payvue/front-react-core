@@ -98,6 +98,7 @@ const mockNotifications: Notification[] = [
 export function NotificationCenter() {
   const [isOpen, setIsOpen] = useState(false)
   const [notifications, setNotifications] = useState<Notification[]>(mockNotifications)
+  const [dismissingIds, setDismissingIds] = useState<Set<string>>(new Set())
 
   const unreadCount = notifications.filter((n) => !n.isRead).length
 
@@ -179,8 +180,16 @@ export function NotificationCenter() {
       alert(`${notification.groupName} 그룹 초대를 거절했습니다.`)
     }
 
-    // Remove the notification after action
-    deleteNotification(notificationId)
+    // Animate out then remove the notification
+    setDismissingIds((prev) => new Set(prev).add(notificationId))
+    setTimeout(() => {
+      deleteNotification(notificationId)
+      setDismissingIds((prev) => {
+        const next = new Set(prev)
+        next.delete(notificationId)
+        return next
+      })
+    }, 300)
   }
 
   return (
@@ -228,10 +237,14 @@ export function NotificationCenter() {
               {notifications.map((notification, index) => (
                 <div key={notification.id} className="group">
                   <div
-                    className={`p-4 rounded-lg transition-all duration-200 cursor-pointer border-l-4 ${
+                    className={`p-4 rounded-lg cursor-pointer border-l-4 transition-all duration-300 ${
                       !notification.isRead
                         ? "bg-blue-50/50 border-l-blue-500 hover:bg-blue-50/80 shadow-sm"
                         : "bg-transparent border-l-transparent hover:bg-muted/50"
+                    } ${
+                      dismissingIds.has(notification.id)
+                        ? "opacity-0 translate-x-full scale-95"
+                        : "opacity-100 translate-x-0 scale-100"
                     }`}
                     onClick={() => !notification.isRead && markAsRead(notification.id)}
                   >
@@ -320,7 +333,15 @@ export function NotificationCenter() {
                         className="h-6 w-6 opacity-0 group-hover:opacity-100 hover:bg-destructive/10 hover:text-destructive transition-opacity"
                         onClick={(e) => {
                           e.stopPropagation()
-                          deleteNotification(notification.id)
+                          setDismissingIds((prev) => new Set(prev).add(notification.id))
+                          setTimeout(() => {
+                            deleteNotification(notification.id)
+                            setDismissingIds((prev) => {
+                              const next = new Set(prev)
+                              next.delete(notification.id)
+                              return next
+                            })
+                          }, 300)
                         }}
                       >
                         <X className="h-3 w-3" />
