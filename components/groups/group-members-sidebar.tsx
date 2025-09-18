@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
@@ -12,6 +12,8 @@ import {
   Circle,
   ChevronRight,
   ChevronLeft,
+  ChevronDown,
+  ChevronUp,
   MessageCircle,
   Send,
   CreditCard,
@@ -89,6 +91,12 @@ const mockGroups: Group[] = [
       { id: "2", name: "김엄마", role: "member", isOnline: true, hasNewActivity: true },
       { id: "3", name: "김형", role: "member", isOnline: false, lastSeen: "5분 전", hasNewActivity: true },
       { id: "4", name: "김사용자", role: "member", isOnline: true },
+      { id: "5", name: "김할머니", role: "member", isOnline: true },
+      { id: "6", name: "김할아버지", role: "member", isOnline: false, lastSeen: "1시간 전" },
+      { id: "7", name: "김고모", role: "member", isOnline: true, hasNewActivity: true },
+      { id: "8", name: "김삼촌", role: "member", isOnline: false, lastSeen: "30분 전" },
+      { id: "9", name: "김사촌", role: "member", isOnline: true },
+      { id: "10", name: "김조카", role: "member", isOnline: false, lastSeen: "2시간 전" },
     ],
   },
   {
@@ -97,10 +105,14 @@ const mockGroups: Group[] = [
     sharedBalance: 120000,
     recentEvents: [],
     members: [
-      { id: "5", name: "이팀장", role: "admin", isOnline: false, lastSeen: "1시간 전" },
-      { id: "6", name: "박대리", role: "member", isOnline: true },
-      { id: "7", name: "최사원", role: "member", isOnline: false, lastSeen: "30분 전" },
-      { id: "8", name: "김사용자", role: "member", isOnline: true },
+      { id: "11", name: "이팀장", role: "admin", isOnline: false, lastSeen: "1시간 전" },
+      { id: "12", name: "박대리", role: "member", isOnline: true },
+      { id: "13", name: "최사원", role: "member", isOnline: false, lastSeen: "30분 전" },
+      { id: "14", name: "김사용자", role: "member", isOnline: true },
+      { id: "15", name: "정과장", role: "member", isOnline: true, hasNewActivity: true },
+      { id: "16", name: "한부장", role: "member", isOnline: false, lastSeen: "2시간 전" },
+      { id: "17", name: "오차장", role: "member", isOnline: true },
+      { id: "18", name: "윤주임", role: "member", isOnline: false, lastSeen: "45분 전" },
     ],
   },
   {
@@ -109,24 +121,82 @@ const mockGroups: Group[] = [
     sharedBalance: 180000,
     recentEvents: [],
     members: [
-      { id: "9", name: "정친구", role: "admin", isOnline: true },
-      { id: "10", name: "한친구", role: "member", isOnline: false, lastSeen: "2시간 전" },
-      { id: "11", name: "김사용자", role: "member", isOnline: true },
+      { id: "19", name: "정친구", role: "admin", isOnline: true },
+      { id: "20", name: "한친구", role: "member", isOnline: false, lastSeen: "2시간 전" },
+      { id: "21", name: "김사용자", role: "member", isOnline: true },
+      { id: "22", name: "박친구", role: "member", isOnline: true, hasNewActivity: true },
+      { id: "23", name: "이친구", role: "member", isOnline: false, lastSeen: "1시간 전" },
+      { id: "24", name: "최친구", role: "member", isOnline: true },
+      { id: "25", name: "강친구", role: "member", isOnline: false, lastSeen: "3시간 전" },
     ],
   },
 ]
 
-export function GroupMembersSidebar() {
+interface GroupMembersSidebarProps {
+  onCollapseChange?: (isCollapsed: boolean) => void
+}
+
+export function GroupMembersSidebar({ onCollapseChange }: GroupMembersSidebarProps = {}) {
   const [isCollapsed, setIsCollapsed] = useState(false)
+  const [isAnimatingOut, setIsAnimatingOut] = useState(false)
   const [selectedGroup, setSelectedGroup] = useState<string>("1")
   const [groups, setGroups] = useState(mockGroups) // Made groups state mutable to handle read status
   const [dismissingEvents, setDismissingEvents] = useState<Set<string>>(new Set()) // Track dismissing animations
+  const [openDropdowns, setOpenDropdowns] = useState<Set<string>>(new Set()) // Track which dropdowns are open
+  const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(['online', 'offline'])) // Track expanded sections
+
+  // Notify parent component when collapse state changes
+  useEffect(() => {
+    onCollapseChange?.(isCollapsed)
+  }, [isCollapsed, onCollapseChange])
 
   const currentGroup = groups.find((g) => g.id === selectedGroup)
   const onlineMembers = currentGroup?.members.filter((m) => m.isOnline) || []
   const offlineMembers = currentGroup?.members.filter((m) => !m.isOnline) || []
 
   const unreadEvents = currentGroup?.recentEvents.filter((event) => !event.isRead) || []
+
+  // Handle click outside to close dropdowns
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element
+      if (!target.closest('[data-dropdown]')) {
+        setOpenDropdowns(new Set())
+      }
+    }
+
+    if (openDropdowns.size > 0) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [openDropdowns])
+
+  const toggleDropdown = (memberId: string) => {
+    setOpenDropdowns(prev => {
+      const newSet = new Set(prev)
+      if (newSet.has(memberId)) {
+        newSet.delete(memberId)
+      } else {
+        newSet.add(memberId)
+      }
+      return newSet
+    })
+  }
+
+  const toggleSection = (section: string) => {
+    setExpandedSections(prev => {
+      const newSet = new Set(prev)
+      if (newSet.has(section)) {
+        newSet.delete(section)
+      } else {
+        newSet.add(section)
+      }
+      return newSet
+    })
+  }
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("ko-KR", {
@@ -176,7 +246,7 @@ export function GroupMembersSidebar() {
           variant="outline"
           size="icon"
           onClick={() => setIsCollapsed(false)}
-          className="bg-background shadow-lg hover:shadow-xl transition-all duration-300"
+          className="bg-background shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out"
         >
           <ChevronRight className="h-4 w-4" />
         </Button>
@@ -185,7 +255,9 @@ export function GroupMembersSidebar() {
   }
 
   return (
-    <div className="fixed left-0 top-16 h-[calc(100vh-4rem-3rem)] w-80 bg-background border-r border-border shadow-lg z-40 flex flex-col animate-in slide-in-from-left-full duration-300">
+    <div className={`fixed left-0 top-30 rounded-lg shadow-2xl h-[calc(100vh-5rem-3rem)] w-64 bg-background border-r border-border shadow-lg z-40 flex flex-col transition-all duration-300 ease-in-out ${
+      isAnimatingOut ? "animate-out slide-out-to-left-full" : "animate-in slide-in-from-left-full"
+    }`}>
       {/* Header */}
       <div className="p-4 border-b border-border">
         <div className="flex items-center justify-between mb-3">
@@ -193,7 +265,17 @@ export function GroupMembersSidebar() {
             <Users className="h-4 w-4" />
             그룹 멤버
           </h3>
-          <Button variant="ghost" size="icon" onClick={() => setIsCollapsed(true)}>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => {
+              setIsAnimatingOut(true)
+              setTimeout(() => {
+                setIsCollapsed(true)
+                setIsAnimatingOut(false)
+              }, 300)
+            }}
+          >
             <ChevronLeft className="h-4 w-4" />
           </Button>
         </div>
@@ -266,21 +348,37 @@ export function GroupMembersSidebar() {
       )}
 
       {/* Members List */}
-      <ScrollArea className="flex-1 p-4">
-        {currentGroup && (
-          <div className="space-y-4">
+      <div className="flex-1 overflow-hidden">
+        <ScrollArea className="h-full p-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+          {currentGroup && (
+            <div className="space-y-4 pr-2">
             {/* Online Members */}
             {onlineMembers.length > 0 && (
               <div>
-                <div className="flex items-center gap-2 mb-3">
-                  <Circle className="h-2 w-2 fill-green-500 text-green-500" />
-                  <span className="text-sm font-medium text-green-600">온라인 ({onlineMembers.length})</span>
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <Circle className="h-2 w-2 fill-green-500 text-green-500" />
+                    <span className="text-sm font-medium text-green-600">온라인 ({onlineMembers.length})</span>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => toggleSection('online')}
+                    className="h-6 w-6 p-0"
+                  >
+                    {expandedSections.has('online') ? (
+                      <ChevronUp className="h-3 w-3" />
+                    ) : (
+                      <ChevronDown className="h-3 w-3" />
+                    )}
+                  </Button>
                 </div>
-                <div className="space-y-2">
+                {expandedSections.has('online') && (
+                  <div className="space-y-2">
                   {onlineMembers.map((member) => (
                     <div
                       key={member.id}
-                      className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50 transition-colors group"
+                      className="flex items-center gap-2 p-2 rounded-lg hover:bg-muted/50 transition-colors group"
                     >
                       <div className="relative">
                         <Avatar className="h-8 w-8">
@@ -300,7 +398,7 @@ export function GroupMembersSidebar() {
                         <span className="text-xs text-green-600">온라인</span>
                       </div>
                       {/* Member Action Dropdown */}
-                      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="flex items-center gap-1 md:opacity-0 md:group-hover:opacity-100 transition-opacity relative" data-dropdown>
                         <Button
                           variant="ghost"
                           size="icon"
@@ -309,31 +407,57 @@ export function GroupMembersSidebar() {
                         >
                           <MessageCircle className="h-3 w-3" />
                         </Button>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-6 w-6">
-                              <MoreVertical className="h-3 w-3" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => handleMemberAction(member.id, "transfer")}>
-                              <Send className="mr-2 h-3 w-3" />
-                              송금하기
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleMemberAction(member.id, "request")}>
-                              <CreditCard className="mr-2 h-3 w-3" />
-                              송금 요청
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleMemberAction(member.id, "chat")}>
-                              <MessageCircle className="mr-2 h-3 w-3" />
-                              채팅하기
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                        <div className="relative">
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="h-6 w-6"
+                            onClick={() => toggleDropdown(member.id)}
+                          >
+                            <MoreVertical className="h-3 w-3" />
+                          </Button>
+                          {openDropdowns.has(member.id) && (
+                            <div className="absolute right-0 top-full mt-1 w-28 bg-white border border-gray-200 rounded-md shadow-lg z-[9999]">
+                              <div className="py-1">
+                                <button 
+                                  className="flex items-center w-full px-3 py-1.5 text-xs hover:bg-gray-100"
+                                  onClick={() => {
+                                    handleMemberAction(member.id, "transfer")
+                                    toggleDropdown(member.id)
+                                  }}
+                                >
+                                  <Send className="mr-2 h-3 w-3" />
+                                  송금하기
+                                </button>
+                                <button 
+                                  className="flex items-center w-full px-3 py-1.5 text-xs hover:bg-gray-100"
+                                  onClick={() => {
+                                    handleMemberAction(member.id, "request")
+                                    toggleDropdown(member.id)
+                                  }}
+                                >
+                                  <CreditCard className="mr-2 h-3 w-3" />
+                                  송금 요청
+                                </button>
+                                <button 
+                                  className="flex items-center w-full px-3 py-1.5 text-xs hover:bg-gray-100"
+                                  onClick={() => {
+                                    handleMemberAction(member.id, "chat")
+                                    toggleDropdown(member.id)
+                                  }}
+                                >
+                                  <MessageCircle className="mr-2 h-3 w-3" />
+                                  채팅하기
+                                </button>
+                              </div>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
                   ))}
-                </div>
+                  </div>
+                )}
               </div>
             )}
 
@@ -343,15 +467,30 @@ export function GroupMembersSidebar() {
             {/* Offline Members */}
             {offlineMembers.length > 0 && (
               <div>
-                <div className="flex items-center gap-2 mb-3">
-                  <Circle className="h-2 w-2 fill-gray-400 text-gray-400" />
-                  <span className="text-sm font-medium text-gray-600">오프라인 ({offlineMembers.length})</span>
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <Circle className="h-2 w-2 fill-gray-400 text-gray-400" />
+                    <span className="text-sm font-medium text-gray-600">오프라인 ({offlineMembers.length})</span>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => toggleSection('offline')}
+                    className="h-6 w-6 p-0"
+                  >
+                    {expandedSections.has('offline') ? (
+                      <ChevronUp className="h-3 w-3" />
+                    ) : (
+                      <ChevronDown className="h-3 w-3" />
+                    )}
+                  </Button>
                 </div>
-                <div className="space-y-2">
+                {expandedSections.has('offline') && (
+                  <div className="space-y-2">
                   {offlineMembers.map((member) => (
                     <div
                       key={member.id}
-                      className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50 transition-colors opacity-75 group"
+                      className="flex items-center gap-2 p-2 rounded-lg hover:bg-muted/50 transition-colors opacity-75 group"
                     >
                       <div className="relative">
                         <Avatar className="h-8 w-8">
@@ -371,37 +510,64 @@ export function GroupMembersSidebar() {
                         <span className="text-xs text-muted-foreground">{member.lastSeen || "오프라인"}</span>
                       </div>
                       {/* Member Action Dropdown for Offline Members */}
-                      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-6 w-6">
-                              <MoreVertical className="h-3 w-3" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => handleMemberAction(member.id, "transfer")}>
-                              <Send className="mr-2 h-3 w-3" />
-                              송금하기
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleMemberAction(member.id, "request")}>
-                              <CreditCard className="mr-2 h-3 w-3" />
-                              송금 요청
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleMemberAction(member.id, "chat")}>
-                              <MessageCircle className="mr-2 h-3 w-3" />
-                              메시지 보내기
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                      <div className="flex items-center gap-1 md:opacity-0 md:group-hover:opacity-100 transition-opacity relative" data-dropdown>
+                        <div className="relative">
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="h-6 w-6"
+                            onClick={() => toggleDropdown(member.id)}
+                          >
+                            <MoreVertical className="h-3 w-3" />
+                          </Button>
+                          {openDropdowns.has(member.id) && (
+                            <div className="absolute right-0 top-full mt-1 w-28 bg-white border border-gray-200 rounded-md shadow-lg z-[9999]">
+                              <div className="py-1">
+                                <button 
+                                  className="flex items-center w-full px-3 py-1.5 text-xs hover:bg-gray-100"
+                                  onClick={() => {
+                                    handleMemberAction(member.id, "transfer")
+                                    toggleDropdown(member.id)
+                                  }}
+                                >
+                                  <Send className="mr-2 h-3 w-3" />
+                                  송금하기
+                                </button>
+                                <button 
+                                  className="flex items-center w-full px-3 py-1.5 text-xs hover:bg-gray-100"
+                                  onClick={() => {
+                                    handleMemberAction(member.id, "request")
+                                    toggleDropdown(member.id)
+                                  }}
+                                >
+                                  <CreditCard className="mr-2 h-3 w-3" />
+                                  송금 요청
+                                </button>
+                                <button 
+                                  className="flex items-center w-full px-3 py-1.5 text-xs hover:bg-gray-100"
+                                  onClick={() => {
+                                    handleMemberAction(member.id, "chat")
+                                    toggleDropdown(member.id)
+                                  }}
+                                >
+                                  <MessageCircle className="mr-2 h-3 w-3" />
+                                  메시지 보내기
+                                </button>
+                              </div>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
                   ))}
-                </div>
+                  </div>
+                )}
               </div>
             )}
           </div>
         )}
-      </ScrollArea>
+        </ScrollArea>
+      </div>
 
       {/* Footer */}
       <div className="p-4 border-t border-border">
