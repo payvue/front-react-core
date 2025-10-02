@@ -1,28 +1,13 @@
 "use client"
 
-import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Wallet, Plus, ArrowUpRight, Star, Gift } from "lucide-react"
-
-interface User {
-  balance: number
-  points: number
-}
+import { useAppSelector } from "@/lib/redux/hooks"
 
 export function BalanceCard() {
-  const [user, setUser] = useState<User | null>(null)
 
-  useEffect(() => {
-    const userData = localStorage.getItem("user")
-    if (userData) {
-      const parsedUser = JSON.parse(userData)
-      setUser({
-        ...parsedUser,
-        points: parsedUser.points || 12500, // 기본 포인트 설정
-      })
-    }
-  }, [])
+  const { asset } = useAppSelector((state) => state.auth.domain)
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("ko-KR", {
@@ -34,8 +19,6 @@ export function BalanceCard() {
   const formatPoints = (points: number) => {
     return new Intl.NumberFormat("ko-KR").format(points)
   }
-
-  if (!user) return null
 
   return (
     <div className="rounded-xl shadow-lg p-6 bg-gradient-to-br from-purple-50 to-purple-100">
@@ -58,7 +41,7 @@ export function BalanceCard() {
           </div>
           <div className="pt-4">
             <div className="text-2xl font-bold mb-4 text-purple-900" style={{ color: "#581c87 !important" }}>
-              {formatCurrency(user.balance)}
+              {formatCurrency(asset.balance)}
             </div>
             <div className="flex gap-2">
               <Button
@@ -96,7 +79,7 @@ export function BalanceCard() {
           </div>
           <div className="pt-4">
             <div className="text-2xl font-bold mb-4 text-purple-900" style={{ color: "#581c87 !important" }}>
-              {formatPoints(user.points)}P
+              {formatPoints(asset.point)}P
             </div>
             <div className="flex gap-2">
               <Button

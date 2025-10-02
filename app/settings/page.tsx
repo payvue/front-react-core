@@ -1,7 +1,7 @@
 "use client"
 
 import { PaymentLimits } from "@/components/settings/payment-limits"
-import { ProfileSettings } from "@/components/settings/profile-settings"
+import { ProfileSettings } from "@/components/settings/profile"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Settings, Shield, User, Bell } from "lucide-react"
