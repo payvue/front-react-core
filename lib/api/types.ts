@@ -1,5 +1,7 @@
+import { responseCode } from "@/features/apis"
+
 export interface ApiResponse<T> {
-  success: boolean
+  code: responseCode
   data?: T
   error?: string
   message?: string

@@ -1,90 +1,62 @@
-import type { ApiResponse } from "./types"
+import APPLICATION_ERROR_CODE from "@/constants/error";
+import { LOCAL_STORAGE_KEY } from "@/constants/localStorage";
+import { getLocalStorageItem } from "@/util/localStorage";
 
-class ApiClient {
-  private baseUrl: string
-  private defaultHeaders: Record<string, string>
+import axios, { AxiosError, AxiosRequestConfig, Method } from 'axios';
+import { REQUEST_URL } from '@/constants';
 
-  constructor(baseUrl = "/api") {
-    this.baseUrl = baseUrl
-    this.defaultHeaders = {
-      "Content-Type": "application/json",
-    }
-  }
 
-  private getAuthToken(): string | null {
-    if (typeof window === "undefined") return null
-    const user = localStorage.getItem("user")
-    if (user) {
-      const userData = JSON.parse(user)
-      return userData.token || null
-    }
-    return null
-  }
 
-  private async request<T>(endpoint: string, options: RequestInit = {}): Promise<ApiResponse<T>> {
-    const token = this.getAuthToken()
-    const headers = {
-      ...this.defaultHeaders,
-      ...(token && { Authorization: `Bearer ${token}` }),
-      ...options.headers,
-    }
+axios.defaults.baseURL = process.env.NEXT_PUBLIC_PAYVUE_API_URI;
 
-    try {
-      const response = await fetch(`${this.baseUrl}${endpoint}`, {
-        ...options,
-        headers,
-      })
+const STATUS_CODE = {
+  INTERNAL_SERVER_ERROR: 500,
+};
 
-      const data = await response.json()
+const isAxiosError = (error: any): error is AxiosError => {
+  return error.isAxiosError;
+};
 
-      if (!response.ok) {
-        return {
-          success: false,
-          error: data.message || `HTTP ${response.status}`,
-        }
+const isNoAuthorizationRequired = (path: string) => {
+  return Object.values(REQUEST_URL.PUBLIC).includes(path)
+};
+
+const request = async (config: AxiosRequestConfig) => {
+  try {
+    const response = await axios(config);
+
+    return response.data;
+  } catch (error) {
+    if (isAxiosError(error)) {
+      if (!error.response) {
+        throw { code: APPLICATION_ERROR_CODE.NETWORK_ERROR, message: 'Network Error' };
       }
 
-      return {
-        success: true,
-        data: data.data || data,
-        message: data.message,
+      if (error.response.status === STATUS_CODE.INTERNAL_SERVER_ERROR) {
+        throw {
+          code: APPLICATION_ERROR_CODE.INTERNAL_SERVER_ERROR,
+          message: 'internal server error',
+        };
       }
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : "Network error",
-      }
+
+      throw error.response?.data;
     }
   }
+};
 
-  async get<T>(endpoint: string): Promise<ApiResponse<T>> {
-    return this.request<T>(endpoint, { method: "GET" })
-  }
+axios.interceptors.request.use(
+  (config) => {
+    if (!config.headers.Authorization || isNoAuthorizationRequired(config.url as string)) {
+      const token = getLocalStorageItem(LOCAL_STORAGE_KEY.ACCESS_TOKEN);
 
-  async post<T>(endpoint: string, data?: any): Promise<ApiResponse<T>> {
-    return this.request<T>(endpoint, {
-      method: "POST",
-      body: data ? JSON.stringify(data) : undefined,
-    })
-  }
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+    }
 
-  async put<T>(endpoint: string, data?: any): Promise<ApiResponse<T>> {
-    return this.request<T>(endpoint, {
-      method: "PUT",
-      body: data ? JSON.stringify(data) : undefined,
-    })
-  }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
 
-  async delete<T>(endpoint: string): Promise<ApiResponse<T>> {
-    return this.request<T>(endpoint, { method: "DELETE" })
-  }
-
-  async patch<T>(endpoint: string, data?: any): Promise<ApiResponse<T>> {
-    return this.request<T>(endpoint, {
-      method: "PATCH",
-      body: data ? JSON.stringify(data) : undefined,
-    })
-  }
-}
-
-export const apiClient = new ApiClient()
+export default request
