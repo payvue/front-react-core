@@ -3,7 +3,7 @@
 import type React from "react"
 import { createContext, useContext, useReducer, useEffect, type ReactNode } from "react"
 import type { User, Product, Group, PaymentMethod, Transaction } from "@/lib/api/types"
-import { authService } from "@/features/auth"
+// import { authService } from "@/features/auth"
 
 interface AppState {
   // Authentication
@@ -185,10 +185,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
       dispatch({ type: "SET_LOADING", payload: true })
 
       // Check for existing user session
-      const currentUser = authService.getCurrentUser()
-      if (currentUser) {
-        dispatch({ type: "SET_USER", payload: currentUser })
-      }
+      // const currentUser = authService.getCurrentUser()
+      // if (currentUser) {
+      //   dispatch({ type: "SET_USER", payload: currentUser })
+      // }
 
       // Load cart from localStorage
       const savedCart = localStorage.getItem("cart")
