@@ -8,17 +8,24 @@ import { PointsRewardsDialog } from "@/components/dashboard/points-card"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Users, CreditCard, TrendingUp } from "lucide-react"
+import { useUserContext } from "@/components/context/user"
+import { useRouter } from "next/navigation"
 
 export default function DashboardPage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
 
+  const { isAuthenticated } = useUserContext()
+  const router = useRouter()
+
   useEffect(() => {
-    const userData = localStorage.getItem("user")
-    if (!userData) {
-      window.location.href = "/login"
+
+    if(!isAuthenticated()) {
+      router.push('/login')
       return
     }
+
     setIsLoggedIn(true)
+  
   }, [])
 
   if (!isLoggedIn) {

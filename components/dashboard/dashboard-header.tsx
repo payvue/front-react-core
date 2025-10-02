@@ -7,6 +7,8 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { NotificationCenter } from "@/components/notifications/notification-center"
 import { Settings, LogOut, CreditCard, Package, BarChart3, Users, ShoppingBag } from "lucide-react"
 import Link from "next/link"
+import { useAppSelector } from "@/lib/redux/hooks"
+import { AvatarImage } from "@radix-ui/react-avatar"
 
 interface DashboardUser {
   id: string
@@ -19,6 +21,10 @@ export function DashboardHeader() {
   const [user, setUser] = useState<DashboardUser | null>(null)
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
+
+  const { account, info, asset } = useAppSelector((state) => state.auth.domain)
+  
+
 
   useEffect(() => {
     const userData = localStorage.getItem("user")
@@ -81,15 +87,6 @@ export function DashboardHeader() {
 
         <div className="flex items-center gap-4">
           <NotificationCenter />
-          
-          {/* Debug indicator */}
-          {/* {dropdownOpen && (
-            <div className="fixed top-4 right-4 bg-red-500 text-white p-2 rounded z-[10000]">
-              Dropdown is open!
-            </div>
-          )} */}
-
-          {/* Simple dropdown without Radix UI for testing */}
           <div className="relative" ref={dropdownRef}>
             <Button 
               variant="ghost" 
@@ -100,10 +97,11 @@ export function DashboardHeader() {
                 setDropdownOpen(!dropdownOpen)
               }}
             >
-              <Avatar className="h-8 w-8">
+              <Avatar className="h-8 w-10">
+                <AvatarImage src={info.avatar} alt={account?.alias ?? "guest"} />
                 <AvatarFallback>{user?.name?.charAt(0) ?? "U"}</AvatarFallback>
               </Avatar>
-              <span className="hidden md:inline">{user?.name ?? "사용자"}</span>
+              <span className="hidden md:inline">{account?.alias ?? "게스트"}</span>
             </Button>
             
             {dropdownOpen && (
