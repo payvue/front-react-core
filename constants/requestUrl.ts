@@ -6,9 +6,14 @@ export const REQUEST_URL = {
     FINDPASSWORD: '/user/account/find-password',
   },
   PRIVATE: {
+    EXIST: '/user/account/exist',
     INFO: '/user/account/info',
     EDIT: '/user/account/edit',
     CHANGEPW: '/user/account/change-pw',
     LOGOUT: '/user/auth/logout',
+
+    COMMUNITYINFO: '/community/participating',
+    CREATE_COMMUNITYINFO: '/community/create',
+    INVITE_FOLLOWER: '/community/invite'
   },
 };

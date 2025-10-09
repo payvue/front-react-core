@@ -1,9 +1,11 @@
 
-import reducer from '@/features/auth/slice';
-import { combineReducers } from 'redux';
+import authReducer from '@/features/auth/slice'
+import communityReducer from '@/features/community/slice'
+import { combineReducers } from 'redux'
 
 const rootReducer = combineReducers({
-  auth: reducer,
-});
+  auth: authReducer,
+  community: communityReducer
+})
 
 export default rootReducer
