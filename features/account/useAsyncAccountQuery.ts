@@ -8,13 +8,13 @@ import { QUERY_USER_KEY } from "@/components/context/user";
 import useAccountAPI from "./api";
 
 
-const useAsyncAccountQuery = (authenticated: () => (() => boolean)) => {
+const useAsyncAccountQuery = (authenticated: () => (() => boolean), isLoggedIn: boolean) => {
     
     const dispatch = useAppDispatch()
     const { info } = useAccountAPI()
     
     const { refetch: fetch } = useQuery({
-        queryKey: QUERY_USER_KEY,
+        queryKey: [QUERY_USER_KEY, isLoggedIn],
         queryFn: async () => {
             if(!authenticated()()) {
                 dispatch(unauthenticated())
@@ -27,7 +27,7 @@ const useAsyncAccountQuery = (authenticated: () => (() => boolean)) => {
         staleTime: 1000 * 60 * 5,
         gcTime: 1000 * 60 * 30,
         retry: 1,
-        enabled: false
+        enabled: isLoggedIn
     })
 
     return {

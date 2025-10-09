@@ -1,11 +1,10 @@
 "use client"
 
 import { User } from "@/types";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { createContext, ReactNode, useContext, useEffect } from "react";
 import isExpired from '../../util/jwt';
-import APIResponse from "@/lib/api/types/response";
-import { authenticated, fetchUserInfo, unauthenticated } from "@/features/auth";
+import { authenticated, unauthenticated } from "@/features/auth";
 import { useAppDispatch, useAppSelector } from "@/lib/redux/hooks";
 import useAsyncAccountQuery from "@/features/account/useAsyncAccountQuery";
 
@@ -20,10 +19,11 @@ export const QUERY_USER_KEY = ["user"]
 
 const UserProvider = ({ children }: { children: ReactNode }) => {
 
+  const user: User.Context = useAppSelector((state) => state.auth.domain)
+
   const queryClient = useQueryClient()
   const dispatch = useAppDispatch()
-  const { fetch } = useAsyncAccountQuery(() => isAuthenticated)
-  const user: User.Context = useAppSelector((state) => state.auth.domain)
+  const { fetch } = useAsyncAccountQuery(() => isAuthenticated, user.account.status.isLoggedIn)
 
   useEffect(() => {
     if (user) {
@@ -34,9 +34,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [user])
 
-  useEffect(() => {
-    fetch()
-  }, [user.account.status.isLoggedIn, user.account.token])
+  useEffect(() => { fetch() } , [])
   
   const authorized = (token: string) => {
     dispatch(authenticated(token))
