@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
 import { DashboardLayout } from "@/components/dashboard/dashboard-layout"
 import { BalanceCard } from "@/components/dashboard/balance-card"
 import { RecentTransactions } from "@/components/dashboard/recent-transactions"
@@ -10,27 +10,20 @@ import { Button } from "@/components/ui/button"
 import { Users, CreditCard, TrendingUp } from "lucide-react"
 import { useUserContext } from "@/components/context/user"
 import { useRouter } from "next/navigation"
+import { useAppSelector } from "@/lib/redux/hooks"
 
 export default function DashboardPage() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
 
   const { isAuthenticated } = useUserContext()
+  const { groups } = useAppSelector((state) => state.community.domain)
   const router = useRouter()
 
   useEffect(() => {
-
     if(!isAuthenticated()) {
       router.push('/login')
       return
     }
-
-    setIsLoggedIn(true)
-  
   }, [])
-
-  if (!isLoggedIn) {
-    return <div>로딩 중...</div>
-  }
 
   return (
     <DashboardLayout>
@@ -44,7 +37,7 @@ export default function DashboardPage() {
               <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">3</div>
+              <div className="text-2xl font-bold">{groups.length}</div>
               <p className="text-xs text-muted-foreground">참여 중인 그룹</p>
             </CardContent>
           </Card>

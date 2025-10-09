@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
 import { DashboardHeader } from "@/components/dashboard/dashboard-header"
 import { GroupTransactions } from "@/components/groups/group-transactions"
 import { GroupMembers } from "@/components/groups/group-members"
@@ -12,51 +12,27 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Users, DollarSign, Settings, Crown } from "lucide-react"
+import { useUserContext } from "@/components/context/user"
+import { formatCurrency } from "@/util/display"
+import { useParams } from "next/navigation"
+import { useAppSelector } from "@/lib/redux/hooks"
 
-interface GroupDetails {
-  id: string
-  name: string
-  description: string
-  memberCount: number
-  sharedBalance: number
-  role: "admin" | "member"
-  createdDate: string
-}
-
-const mockGroupDetails: GroupDetails = {
-  id: "1",
-  name: "가족 계정",
-  description: "우리 가족 공용 결제 계정",
-  memberCount: 4,
-  sharedBalance: 250000,
-  role: "admin",
-  createdDate: "2024-01-01",
-}
 
 export default function GroupDetailPage() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
-  const [groupDetails] = useState(mockGroupDetails)
-  const [userBalance] = useState(150000) // 개인 잔액
+
+  const { isAuthenticated } = useUserContext()
+  const { id } = useParams()
+
+  const { info: verified } = useAppSelector((state) => state.auth.domain)
+  const group = useAppSelector((state) => state.community.domain.groups).find(group => group.id === id)
+  const participant = group!.members!.find(m => m.info.name === verified.name)
 
   useEffect(() => {
-    const userData = localStorage.getItem("user")
-    if (!userData) {
-      window.location.href = "/login"
+    if(!isAuthenticated()) {
+      window.location.href = '/login'
       return
     }
-    setIsLoggedIn(true)
   }, [])
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("ko-KR", {
-      style: "currency",
-      currency: "KRW",
-    }).format(amount)
-  }
-
-  if (!isLoggedIn) {
-    return <div>로딩 중...</div>
-  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -68,17 +44,17 @@ export default function GroupDetailPage() {
           <div className="flex items-center justify-between mb-4">
             <div>
               <div className="flex items-center gap-3 mb-2">
-                <h1 className="text-3xl font-bold">{groupDetails.name}</h1>
-                {groupDetails.role === "admin" && <Crown className="h-6 w-6 text-yellow-500" />}
-                <Badge variant={groupDetails.role === "admin" ? "default" : "secondary"}>
-                  {groupDetails.role === "admin" ? "관리자" : "멤버"}
+                <h1 className="text-3xl font-bold">{group!.name}</h1>
+                {participant!.role === "leader" && <Crown className="h-6 w-6 text-yellow-500" />}
+                <Badge variant={participant!.role === "leader" ? "default" : "secondary"}>
+                  {participant!.role === "leader" ? "리더" : "멤버"}
                 </Badge>
               </div>
-              <p className="text-muted-foreground">{groupDetails.description}</p>
+              <p className="text-muted-foreground">{group!.description}</p>
             </div>
             <div className="flex gap-2">
-              <GroupBalanceChargeDialog groupId={groupDetails.id} currentUserBalance={userBalance} />
-              {groupDetails.role === "admin" && (
+              <GroupBalanceChargeDialog groupId={group!.id} currentUserBalance={group!.shared.balance} />
+              {participant!.role === "leader" && (
                 <Button variant="outline" className="bg-transparent">
                   <Settings className="mr-2 h-4 w-4" />
                   그룹 설정
@@ -95,7 +71,7 @@ export default function GroupDetailPage() {
                 <DollarSign className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-primary">{formatCurrency(groupDetails.sharedBalance)}</div>
+                <div className="text-2xl font-bold text-primary">{formatCurrency(group!.shared.balance)}</div>
                 <p className="text-xs text-muted-foreground">그룹 전체 사용 가능</p>
               </CardContent>
             </Card>
@@ -106,7 +82,7 @@ export default function GroupDetailPage() {
                 <Users className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{groupDetails.memberCount}</div>
+                <div className="text-2xl font-bold">{group!.members.length}</div>
                 <p className="text-xs text-muted-foreground">활성 멤버</p>
               </CardContent>
             </Card>
@@ -139,14 +115,14 @@ export default function GroupDetailPage() {
 
           <TabsContent value="requests" className="space-y-6">
             <PaymentRequests
-              groupId={groupDetails.id}
+              groupId={group!.id}
               currentUserId="current-user-id"
-              isGroupLeader={groupDetails.role === "admin"}
+              isGroupLeader={participant!.role === "leader"}
             />
           </TabsContent>
 
           <TabsContent value="members" className="space-y-6">
-            <GroupMembers />
+            <GroupMembers group={group!} participant={participant!}/>
           </TabsContent>
 
           <TabsContent value="assets" className="space-y-6">

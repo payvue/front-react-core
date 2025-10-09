@@ -1,90 +1,27 @@
 "use client"
 
-import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { CreateGroupModal } from "./create-group-modal"
 import { Users, Settings, Crown } from "lucide-react"
 import Link from "next/link"
+import { useAppSelector } from "@/lib/redux/hooks"
+import { Group } from "@/types"
+import { formatCurrency } from "@/util/display"
 
-interface GroupMember {
-  id: string
-  name: string
-  role: "admin" | "member"
-  joinDate: string
-}
-
-interface Group {
-  id: string
-  name: string
-  description: string
-  memberCount: number
-  sharedBalance: number
-  role: "admin" | "member"
-  members: GroupMember[]
-  createdDate: string
-}
-
-const mockGroups: Group[] = [
-  {
-    id: "1",
-    name: "가족 계정",
-    description: "우리 가족 공용 결제 계정",
-    memberCount: 4,
-    sharedBalance: 250000,
-    role: "admin",
-    members: [
-      { id: "1", name: "김아빠", role: "admin", joinDate: "2024-01-01" },
-      { id: "2", name: "김엄마", role: "member", joinDate: "2024-01-01" },
-      { id: "3", name: "김형", role: "member", joinDate: "2024-01-02" },
-      { id: "4", name: "김사용자", role: "member", joinDate: "2024-01-02" },
-    ],
-    createdDate: "2024-01-01",
-  },
-  {
-    id: "2",
-    name: "회사 동료들",
-    description: "점심값 모아서 결제하기",
-    memberCount: 6,
-    sharedBalance: 120000,
-    role: "member",
-    members: [
-      { id: "5", name: "이팀장", role: "admin", joinDate: "2024-01-05" },
-      { id: "6", name: "박대리", role: "member", joinDate: "2024-01-05" },
-      { id: "7", name: "최사원", role: "member", joinDate: "2024-01-06" },
-      { id: "8", name: "김사용자", role: "member", joinDate: "2024-01-06" },
-    ],
-    createdDate: "2024-01-05",
-  },
-  {
-    id: "3",
-    name: "대학 친구들",
-    description: "여행 경비 공동 관리",
-    memberCount: 5,
-    sharedBalance: 180000,
-    role: "member",
-    members: [
-      { id: "9", name: "정친구", role: "admin", joinDate: "2024-01-10" },
-      { id: "10", name: "한친구", role: "member", joinDate: "2024-01-10" },
-      { id: "11", name: "김사용자", role: "member", joinDate: "2024-01-11" },
-    ],
-    createdDate: "2024-01-10",
-  },
-]
 
 export function GroupList() {
-  const [groups, setGroups] = useState(mockGroups)
+  
+  const { info } = useAppSelector((state) => state.auth.domain)
+  const { groups } = useAppSelector((state) => state.community.domain)
+  const leaderGroups = new Set<string>(
+    groups.flatMap(group =>
+      group.members.some(m => info.name === m.info.name && m.role === 'leader') ? [group.id] : []
+    )
+  );
 
-  const handleGroupCreated = (newGroup: Group) => {
-    setGroups((prev) => [newGroup, ...prev])
-  }
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("ko-KR", {
-      style: "currency",
-      currency: "KRW",
-    }).format(amount)
+  const handleGroupCreated = (newGroup: Group.Context) => {
   }
 
   return (
@@ -114,27 +51,27 @@ export function GroupList() {
                     <Users className="h-5 w-5" />
                     {group.name}
                   </CardTitle>
-                  {group.role === "admin" && <Crown className="h-4 w-4 text-yellow-500" />}
+                  {leaderGroups.has(group.id) && <Crown className="h-4 w-4 text-yellow-500" />}
                 </div>
                 <p className="text-sm text-muted-foreground">{group.description}</p>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-muted-foreground">공용 잔액</span>
-                  <span className="font-semibold text-primary">{formatCurrency(group.sharedBalance)}</span>
+                  <span className="font-semibold text-primary">{formatCurrency(group.shared.balance)}</span>
                 </div>
 
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-muted-foreground">멤버</span>
                   <div className="flex items-center gap-1">
                     <Users className="h-4 w-4" />
-                    <span className="text-sm">{group.memberCount}명</span>
+                    <span className="text-sm">{group.members.length}명</span>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <Badge variant={group.role === "admin" ? "default" : "secondary"}>
-                    {group.role === "admin" ? "관리자" : "멤버"}
+                  <Badge variant={leaderGroups.has(group.id) ? "default" : "secondary"}>
+                    {leaderGroups.has(group.id) ? "리더" : "멤버"}
                   </Badge>
                 </div>
 
@@ -142,7 +79,7 @@ export function GroupList() {
                   <Button asChild variant="outline" size="sm" className="flex-1 bg-transparent">
                     <Link href={`/groups/${group.id}`}>상세보기</Link>
                   </Button>
-                  {group.role === "admin" && (
+                  {leaderGroups.has(group.id) && (
                     <Button variant="ghost" size="sm">
                       <Settings className="h-4 w-4" />
                     </Button>
