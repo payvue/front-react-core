@@ -9,6 +9,7 @@ import "./globals.css"
 import { AppProvider } from "@/lib/contexts/app-context"
 import UserProvider from "@/components/context/user"
 import APIProvider from "@/components/context/api"
+import CommunityProvider from "@/components/context/community"
 
 export const metadata: Metadata = {
   title: "PayEasy - 스마트한 간편결제",
@@ -26,7 +27,9 @@ export default function RootLayout({ children,}: Readonly<{children: React.React
             <APIProvider>
                 <AppProvider>
                     <UserProvider>
-                        {children}  
+                      <CommunityProvider>
+                        {children} 
+                      </CommunityProvider> 
                     </UserProvider>
                   </AppProvider>          
             </APIProvider>

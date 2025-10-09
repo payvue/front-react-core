@@ -1,4 +1,4 @@
-import { createSlice, type PayloadAction } from "@reduxjs/toolkit"
+import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import { fetchUserInfo } from '@/features/auth';
 import { DomainState, User } from "@/types";
 import { setLocalStorageItem } from "@/util/localStorage";

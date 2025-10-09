@@ -6,6 +6,7 @@ import { Method } from "axios";
 
 interface AccountAPI {
   signup: <T>(data: T) => Promise<APIResponse>
+  exist: (data: { email: string }) => Promise<APIResponse>
   info: () => Promise<APIResponse>
   edit: ({ }: {email:string, alias:string}) => Promise<APIResponse>
   changepassword: ({}: { origin: string, changed: string}) => Promise<APIResponse>
@@ -20,6 +21,14 @@ const useAccountAPI = (): AccountAPI => {
             method: 'POST' as Method,
             url: REQUEST_URL.PUBLIC.SIGNUP,
             data,
+        })
+    }
+
+    const exist = async (data: { email: string }) => {
+        return request({
+            method: 'POST' as Method,
+            url: REQUEST_URL.PRIVATE.EXIST,
+            data            
         })
     }
 
@@ -64,6 +73,7 @@ const useAccountAPI = (): AccountAPI => {
 
     return {
         signup,
+        exist,
         info,
         edit,
         changepassword,

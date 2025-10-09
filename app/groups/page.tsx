@@ -1,24 +1,14 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { DashboardHeader } from "@/components/dashboard/dashboard-header"
 import { GroupList } from "@/components/groups/group-list"
+import { useUserContext } from "@/components/context/user"
 
 export default function GroupsPage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
 
-  useEffect(() => {
-    const userData = localStorage.getItem("user")
-    if (!userData) {
-      window.location.href = "/login"
-      return
-    }
-    setIsLoggedIn(true)
-  }, [])
-
-  if (!isLoggedIn) {
-    return <div>로딩 중...</div>
-  }
+  const { isAuthenticated } = useUserContext()
 
   return (
     <div className="min-h-screen bg-background">

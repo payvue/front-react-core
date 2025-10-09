@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef, useEffect } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
@@ -22,115 +22,9 @@ import {
   MoreVertical,
   X,
 } from "lucide-react"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { useAppSelector } from "@/lib/redux/hooks"
+import { formatCurrency, timeAgo } from "@/util/display"
 
-interface GroupMember {
-  id: string
-  name: string
-  role: "admin" | "member"
-  isOnline: boolean
-  lastSeen?: string
-  avatar?: string
-  hasNewActivity?: boolean
-}
-
-interface GroupEvent {
-  id: string
-  type: "payment" | "point_conversion" | "transfer"
-  memberName: string
-  amount: number
-  description: string
-  timestamp: string
-  isRead: boolean // Added isRead property to track notification status
-}
-
-interface Group {
-  id: string
-  name: string
-  members: GroupMember[]
-  sharedBalance: number
-  recentEvents: GroupEvent[]
-}
-
-const mockGroups: Group[] = [
-  {
-    id: "1",
-    name: "가족 계정",
-    sharedBalance: 250000,
-    recentEvents: [
-      {
-        id: "1",
-        type: "payment",
-        memberName: "김엄마",
-        amount: 15000,
-        description: "마트에서 결제",
-        timestamp: "5분 전",
-        isRead: false, // Added unread status
-      },
-      {
-        id: "2",
-        type: "point_conversion",
-        memberName: "김형",
-        amount: 5000,
-        description: "포인트를 현금으로 전환",
-        timestamp: "1시간 전",
-        isRead: false, // Added unread status
-      },
-      {
-        id: "3",
-        type: "transfer",
-        memberName: "김아빠",
-        amount: 30000,
-        description: "김사용자에게 송금",
-        timestamp: "2시간 전",
-        isRead: true, // Already read notification
-      },
-    ],
-    members: [
-      { id: "1", name: "김아빠", role: "admin", isOnline: true },
-      { id: "2", name: "김엄마", role: "member", isOnline: true, hasNewActivity: true },
-      { id: "3", name: "김형", role: "member", isOnline: false, lastSeen: "5분 전", hasNewActivity: true },
-      { id: "4", name: "김사용자", role: "member", isOnline: true },
-      { id: "5", name: "김할머니", role: "member", isOnline: true },
-      { id: "6", name: "김할아버지", role: "member", isOnline: false, lastSeen: "1시간 전" },
-      { id: "7", name: "김고모", role: "member", isOnline: true, hasNewActivity: true },
-      { id: "8", name: "김삼촌", role: "member", isOnline: false, lastSeen: "30분 전" },
-      { id: "9", name: "김사촌", role: "member", isOnline: true },
-      { id: "10", name: "김조카", role: "member", isOnline: false, lastSeen: "2시간 전" },
-    ],
-  },
-  {
-    id: "2",
-    name: "회사 동료들",
-    sharedBalance: 120000,
-    recentEvents: [],
-    members: [
-      { id: "11", name: "이팀장", role: "admin", isOnline: false, lastSeen: "1시간 전" },
-      { id: "12", name: "박대리", role: "member", isOnline: true },
-      { id: "13", name: "최사원", role: "member", isOnline: false, lastSeen: "30분 전" },
-      { id: "14", name: "김사용자", role: "member", isOnline: true },
-      { id: "15", name: "정과장", role: "member", isOnline: true, hasNewActivity: true },
-      { id: "16", name: "한부장", role: "member", isOnline: false, lastSeen: "2시간 전" },
-      { id: "17", name: "오차장", role: "member", isOnline: true },
-      { id: "18", name: "윤주임", role: "member", isOnline: false, lastSeen: "45분 전" },
-    ],
-  },
-  {
-    id: "3",
-    name: "대학 친구들",
-    sharedBalance: 180000,
-    recentEvents: [],
-    members: [
-      { id: "19", name: "정친구", role: "admin", isOnline: true },
-      { id: "20", name: "한친구", role: "member", isOnline: false, lastSeen: "2시간 전" },
-      { id: "21", name: "김사용자", role: "member", isOnline: true },
-      { id: "22", name: "박친구", role: "member", isOnline: true, hasNewActivity: true },
-      { id: "23", name: "이친구", role: "member", isOnline: false, lastSeen: "1시간 전" },
-      { id: "24", name: "최친구", role: "member", isOnline: true },
-      { id: "25", name: "강친구", role: "member", isOnline: false, lastSeen: "3시간 전" },
-    ],
-  },
-]
 
 interface GroupMembersSidebarProps {
   onCollapseChange?: (isCollapsed: boolean) => void
@@ -140,21 +34,22 @@ export function GroupMembersSidebar({ onCollapseChange }: GroupMembersSidebarPro
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [isAnimatingOut, setIsAnimatingOut] = useState(false)
   const [selectedGroup, setSelectedGroup] = useState<string>("1")
-  const [groups, setGroups] = useState(mockGroups) // Made groups state mutable to handle read status
   const [dismissingEvents, setDismissingEvents] = useState<Set<string>>(new Set()) // Track dismissing animations
   const [openDropdowns, setOpenDropdowns] = useState<Set<string>>(new Set()) // Track which dropdowns are open
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(['online', 'offline'])) // Track expanded sections
+
+  const { groups } = useAppSelector((state) => state.community.domain)
 
   // Notify parent component when collapse state changes
   useEffect(() => {
     onCollapseChange?.(isCollapsed)
   }, [isCollapsed, onCollapseChange])
 
-  const currentGroup = groups.find((g) => g.id === selectedGroup)
-  const onlineMembers = currentGroup?.members.filter((m) => m.isOnline) || []
-  const offlineMembers = currentGroup?.members.filter((m) => !m.isOnline) || []
-
-  const unreadEvents = currentGroup?.recentEvents.filter((event) => !event.isRead) || []
+  const currentGroup = Array.from(groups).find((g) => g.id === selectedGroup)
+  const onlineMembers = currentGroup?.members.filter((m) => m.status.isLoggedIn) || []
+  const offlineMembers = currentGroup?.members.filter((m) => !m.status.isLoggedIn) || []
+  // const unreadEvents = Array.from(groups).flatMap(group => group.events.filter(event => !event.isRead))
+  const unreadEvents = []
 
   // Handle click outside to close dropdowns
   useEffect(() => {
@@ -198,12 +93,6 @@ export function GroupMembersSidebar({ onCollapseChange }: GroupMembersSidebarPro
     })
   }
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("ko-KR", {
-      style: "currency",
-      currency: "KRW",
-    }).format(amount)
-  }
 
   const getInitials = (name: string) => {
     return name.charAt(0)
@@ -218,25 +107,25 @@ export function GroupMembersSidebar({ onCollapseChange }: GroupMembersSidebarPro
     setDismissingEvents((prev) => new Set(prev).add(eventId))
 
     // Wait for animation to complete before removing from state
-    setTimeout(() => {
-      setGroups((prevGroups) =>
-        prevGroups.map((group) =>
-          group.id === selectedGroup
-            ? {
-                ...group,
-                recentEvents: group.recentEvents.map((event) =>
-                  event.id === eventId ? { ...event, isRead: true } : event,
-                ),
-              }
-            : group,
-        ),
-      )
-      setDismissingEvents((prev) => {
-        const newSet = new Set(prev)
-        newSet.delete(eventId)
-        return newSet
-      })
-    }, 300)
+    // setTimeout(() => {
+    //   setGroups((prevGroups) =>
+    //     prevGroups.map((group) =>
+    //       group.id === selectedGroup
+    //         ? {
+    //             ...group,
+    //             recentEvents: group.recentEvents.map((event) =>
+    //               event.id === eventId ? { ...event, isRead: true } : event,
+    //             ),
+    //           }
+    //         : group,
+    //     ),
+    //   )
+    //   setDismissingEvents((prev) => {
+    //     const newSet = new Set(prev)
+    //     newSet.delete(eventId)
+    //     return newSet
+    //   })
+    // }, 300)
   }
 
   if (isCollapsed) {
@@ -282,7 +171,7 @@ export function GroupMembersSidebar({ onCollapseChange }: GroupMembersSidebarPro
 
         {/* Group Selector */}
         <div className="space-y-2">
-          {groups.map((group) => (
+          {Array.from(groups).map((group) => (
             <Button
               key={group.id}
               variant={selectedGroup === group.id ? "default" : "ghost"}
@@ -292,7 +181,7 @@ export function GroupMembersSidebar({ onCollapseChange }: GroupMembersSidebarPro
             >
               <div className="flex-1 min-w-0">
                 <div className="font-medium truncate">{group.name}</div>
-                <div className="text-xs text-muted-foreground">{formatCurrency(group.sharedBalance)}</div>
+                <div className="text-xs text-muted-foreground">{formatCurrency(group.shared.balance)}</div>
               </div>
               <Badge variant="secondary" className="ml-2">
                 {group.members.length}
@@ -382,7 +271,7 @@ export function GroupMembersSidebar({ onCollapseChange }: GroupMembersSidebarPro
                     >
                       <div className="relative">
                         <Avatar className="h-8 w-8">
-                          <AvatarFallback className="text-xs">{getInitials(member.name)}</AvatarFallback>
+                          <AvatarFallback className="text-xs">{getInitials(member.info.name)}</AvatarFallback>
                         </Avatar>
                         <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-background" />
                         {/* Activity Indicator */}
@@ -392,8 +281,8 @@ export function GroupMembersSidebar({ onCollapseChange }: GroupMembersSidebarPro
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
-                          <span className="text-sm font-medium truncate">{member.name}</span>
-                          {member.role === "admin" && <Crown className="h-3 w-3 text-yellow-500" />}
+                          <span className="text-sm font-medium truncate">{member.info.name}</span>
+                          {member.role === "leader" && <Crown className="h-3 w-3 text-yellow-500" />}
                         </div>
                         <span className="text-xs text-green-600">온라인</span>
                       </div>
@@ -494,7 +383,7 @@ export function GroupMembersSidebar({ onCollapseChange }: GroupMembersSidebarPro
                     >
                       <div className="relative">
                         <Avatar className="h-8 w-8">
-                          <AvatarFallback className="text-xs">{getInitials(member.name)}</AvatarFallback>
+                          <AvatarFallback className="text-xs">{getInitials(member.info.name)}</AvatarFallback>
                         </Avatar>
                         <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-gray-400 rounded-full border-2 border-background" />
                         {/* Activity Indicator for Offline Members */}
@@ -504,10 +393,10 @@ export function GroupMembersSidebar({ onCollapseChange }: GroupMembersSidebarPro
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
-                          <span className="text-sm font-medium truncate">{member.name}</span>
-                          {member.role === "admin" && <Crown className="h-3 w-3 text-yellow-500" />}
+                          <span className="text-sm font-medium truncate">{member.info.name}</span>
+                          {member.role === "leader" && <Crown className="h-3 w-3 text-yellow-500" />}
                         </div>
-                        <span className="text-xs text-muted-foreground">{member.lastSeen || "오프라인"}</span>
+                        <span className="text-xs text-muted-foreground">{timeAgo(member.status.lastLoggedIn) || "오프라인"}</span>
                       </div>
                       {/* Member Action Dropdown for Offline Members */}
                       <div className="flex items-center gap-1 md:opacity-0 md:group-hover:opacity-100 transition-opacity relative" data-dropdown>
