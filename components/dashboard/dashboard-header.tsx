@@ -3,7 +3,6 @@
 import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { NotificationCenter } from "@/components/notifications/notification-center"
 import { Settings, LogOut, CreditCard, Package, BarChart3, Users, ShoppingBag } from "lucide-react"
 import Link from "next/link"

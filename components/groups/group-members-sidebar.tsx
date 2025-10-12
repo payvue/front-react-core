@@ -3,28 +3,26 @@
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Separator } from "@/components/ui/separator"
 import {
-  Users,
-  Crown,
-  Circle,
-  ChevronRight,
+  Users, ChevronRight,
   ChevronLeft,
-  ChevronDown,
+  Circle,
   ChevronUp,
+  ChevronDown,
+  Crown,
   MessageCircle,
-  Send,
-  CreditCard,
-  TrendingUp,
-  Bell,
   MoreVertical,
-  X,
+  CreditCard,
+  Send
 } from "lucide-react"
 import { useAppSelector } from "@/lib/redux/hooks"
-import { formatCurrency, timeAgo } from "@/util/display"
-
+import { formatCurrency, formatTimestamp } from "@/util/display"
+import { Alarm } from "@/types"
+import { useAlarmContext } from "../context/alarm"
+import { GroupAlarmsSidebar } from "./group-alarm-sidebar"
+import { Avatar, AvatarFallback } from "@radix-ui/react-avatar"
+import { Separator } from "@radix-ui/react-select"
 
 interface GroupMembersSidebarProps {
   onCollapseChange?: (isCollapsed: boolean) => void
@@ -34,13 +32,43 @@ export function GroupMembersSidebar({ onCollapseChange }: GroupMembersSidebarPro
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [isAnimatingOut, setIsAnimatingOut] = useState(false)
   const [selectedGroup, setSelectedGroup] = useState<string>("1")
-  const [dismissingEvents, setDismissingEvents] = useState<Set<string>>(new Set()) // Track dismissing animations
-  const [openDropdowns, setOpenDropdowns] = useState<Set<string>>(new Set()) // Track which dropdowns are open
-  const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(['online', 'offline'])) // Track expanded sections
+
+  const [openDropdowns, setOpenDropdowns] = useState<Set<string>>(new Set())
+  const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(["online", "offline"]))
+  const [isNotificationOpen, setIsNotificationOpen] = useState(true)
+
+  const [notifications, setNotifications] = useState<Alarm.Context>({ noti: [] })
+  const [isLoading, setIsLoading] = useState(false)
+  const [hasMore, setHasMore] = useState(true)
 
   const { groups } = useAppSelector((state) => state.community.domain)
+  const { receiveNotifications } = useAlarmContext()
 
-  // Notify parent component when collapse state changes
+  const load = async () => {
+    if (isLoading || !hasMore) return
+    setIsLoading(true)
+    try {
+      const alarm = await receiveNotifications("Group")
+      if (alarm && alarm.noti) {
+        setNotifications((prev) => ({
+          noti: [
+            ...prev.noti,
+            ...alarm.noti.filter((n) => !n.event.meta.isRead && n.event.type === "Group"),
+          ],
+        }))
+        setHasMore(alarm.noti.length > 0)
+      }
+    } catch (error) {
+      console.error("추가 알림 로드 실패:", error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    load()
+  }, [])
+
   useEffect(() => {
     onCollapseChange?.(isCollapsed)
   }, [isCollapsed, onCollapseChange])
@@ -48,84 +76,53 @@ export function GroupMembersSidebar({ onCollapseChange }: GroupMembersSidebarPro
   const currentGroup = Array.from(groups).find((g) => g.id === selectedGroup)
   const onlineMembers = currentGroup?.members.filter((m) => m.status.isLoggedIn) || []
   const offlineMembers = currentGroup?.members.filter((m) => !m.status.isLoggedIn) || []
-  // const unreadEvents = Array.from(groups).flatMap(group => group.events.filter(event => !event.isRead))
-  const unreadEvents = []
+  const unreadEvents = notifications.noti.filter((noti) => !noti.event.meta.isRead)
 
-  // Handle click outside to close dropdowns
+  // 드롭다운 외부 클릭 시 닫기
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Element
-      if (!target.closest('[data-dropdown]')) {
+      if (!target.closest("[data-dropdown]")) {
         setOpenDropdowns(new Set())
       }
     }
-
     if (openDropdowns.size > 0) {
-      document.addEventListener('mousedown', handleClickOutside)
+      document.addEventListener("mousedown", handleClickOutside)
     }
-
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
+      document.removeEventListener("mousedown", handleClickOutside)
     }
   }, [openDropdowns])
 
   const toggleDropdown = (memberId: string) => {
-    setOpenDropdowns(prev => {
+    setOpenDropdowns((prev) => {
       const newSet = new Set(prev)
-      if (newSet.has(memberId)) {
-        newSet.delete(memberId)
-      } else {
-        newSet.add(memberId)
-      }
+      if (newSet.has(memberId)) newSet.delete(memberId)
+      else newSet.add(memberId)
       return newSet
     })
   }
 
   const toggleSection = (section: string) => {
-    setExpandedSections(prev => {
+    setExpandedSections((prev) => {
       const newSet = new Set(prev)
-      if (newSet.has(section)) {
-        newSet.delete(section)
-      } else {
-        newSet.add(section)
-      }
+      if (newSet.has(section)) newSet.delete(section)
+      else newSet.add(section)
       return newSet
     })
   }
 
-
-  const getInitials = (name: string) => {
-    return name.charAt(0)
-  }
+  const getInitials = (name: string) => name.charAt(0)
 
   const handleMemberAction = (memberId: string, action: string) => {
     console.log(`[v0] Member action: ${action} for member ${memberId}`)
-    // 실제 구현에서는 여기에 송금, 채팅 등의 로직이 들어갑니다
   }
 
+  // ✅ 공백 없이 즉시 알림 제거
   const handleEventDismiss = (eventId: string) => {
-    setDismissingEvents((prev) => new Set(prev).add(eventId))
-
-    // Wait for animation to complete before removing from state
-    // setTimeout(() => {
-    //   setGroups((prevGroups) =>
-    //     prevGroups.map((group) =>
-    //       group.id === selectedGroup
-    //         ? {
-    //             ...group,
-    //             recentEvents: group.recentEvents.map((event) =>
-    //               event.id === eventId ? { ...event, isRead: true } : event,
-    //             ),
-    //           }
-    //         : group,
-    //     ),
-    //   )
-    //   setDismissingEvents((prev) => {
-    //     const newSet = new Set(prev)
-    //     newSet.delete(eventId)
-    //     return newSet
-    //   })
-    // }, 300)
+    setNotifications((prev) => ({
+      noti: prev.noti.filter((n) => n.id !== eventId),
+    }))
   }
 
   if (isCollapsed) {
@@ -144,9 +141,11 @@ export function GroupMembersSidebar({ onCollapseChange }: GroupMembersSidebarPro
   }
 
   return (
-    <div className={`fixed left-0 top-30 rounded-lg shadow-2xl h-[calc(100vh-5rem-3rem)] w-64 bg-background border-r border-border shadow-lg z-40 flex flex-col transition-all duration-300 ease-in-out ${
-      isAnimatingOut ? "animate-out slide-out-to-left-full" : "animate-in slide-in-from-left-full"
-    }`}>
+    <div
+      className={`fixed left-0 top-30 rounded-lg shadow-2xl h-[calc(100vh-5rem-3rem)] w-64 bg-background border-r border-border z-40 flex flex-col transition-all duration-300 ease-in-out ${
+        isAnimatingOut ? "animate-out slide-out-to-left-full" : "animate-in slide-in-from-left-full"
+      }`}
+    >
       {/* Header */}
       <div className="p-4 border-b border-border">
         <div className="flex items-center justify-between mb-3">
@@ -191,52 +190,10 @@ export function GroupMembersSidebar({ onCollapseChange }: GroupMembersSidebarPro
         </div>
       </div>
 
-      {unreadEvents.length > 0 && (
-        <div className="p-4 border-b border-border bg-muted/30">
-          <div className="flex items-center gap-2 mb-2">
-            <Bell className="h-4 w-4 text-blue-500" />
-            <span className="text-sm font-medium">읽지 않은 알림</span>
-            <Badge variant="destructive" className="text-xs px-1.5 py-0.5">
-              {unreadEvents.length}
-            </Badge>
-          </div>
-          <div className="space-y-2">
-            {unreadEvents.slice(0, 3).map((event) => (
-              <div
-                key={event.id}
-                className={`text-xs p-2 bg-background rounded border border-blue-200 bg-blue-50/50 transition-all duration-300 ${
-                  dismissingEvents.has(event.id)
-                    ? "opacity-0 transform translate-x-full scale-95"
-                    : "opacity-100 transform translate-x-0 scale-100"
-                }`}
-              >
-                <div className="flex items-center justify-between mb-1">
-                  <div className="flex items-center gap-1">
-                    {event.type === "payment" && <CreditCard className="h-3 w-3 text-green-500" />}
-                    {event.type === "point_conversion" && <TrendingUp className="h-3 w-3 text-blue-500" />}
-                    {event.type === "transfer" && <Send className="h-3 w-3 text-purple-500" />}
-                    <span className="font-medium">{event.memberName}</span>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-4 w-4 hover:bg-red-100"
-                    onClick={() => handleEventDismiss(event.id)}
-                  >
-                    <X className="h-2.5 w-2.5" />
-                  </Button>
-                </div>
-                <div className="text-muted-foreground">{event.description}</div>
-                <div className="text-muted-foreground mt-1">
-                  {formatCurrency(event.amount)} · {event.timestamp}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+      {/* 알림 토글 */}
+      <GroupAlarmsSidebar></GroupAlarmsSidebar>
 
-      {/* Members List */}
+      {/* 멤버 목록 */}
       <div className="flex-1 overflow-hidden">
         <ScrollArea className="h-full p-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
           {currentGroup && (
@@ -396,7 +353,7 @@ export function GroupMembersSidebar({ onCollapseChange }: GroupMembersSidebarPro
                           <span className="text-sm font-medium truncate">{member.info.name}</span>
                           {member.role === "leader" && <Crown className="h-3 w-3 text-yellow-500" />}
                         </div>
-                        <span className="text-xs text-muted-foreground">{timeAgo(member.status.lastLoggedIn) || "오프라인"}</span>
+                        <span className="text-xs text-muted-foreground">{formatTimestamp(member.status.lastLoggedIn) || "오프라인"}</span>
                       </div>
                       {/* Member Action Dropdown for Offline Members */}
                       <div className="flex items-center gap-1 md:opacity-0 md:group-hover:opacity-100 transition-opacity relative" data-dropdown>
