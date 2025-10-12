@@ -77,17 +77,21 @@ declare namespace Alarm {
 
 declare namespace Event {
   
-  type Context<T extends keyof EventNamespaces> = {
+  type Context<T extends keyof Namespace> = {
     type: T
-    event: ExtractEvent<T>
+    action: string
+    meta: Meta
+    content: ExtractEvent<T>
   }     
 
   type Namespace = {
-    Group: typeof Group
+    Group: typeof Group.Event
+    Transaction: typeof Transaction.Event
+    System: typeof System.Event
   }  
 
-  type ExtractEvent<T extends keyof EventNamespaces> = 
-    EventNamespaces[T] extends { Event: infer E } ? E : never 
+  type ExtractEvent<T extends keyof Namespace> = 
+    Namespace[T] extends { Event: infer E } ? E : never 
 
   type Meta = {
     description: string
@@ -133,10 +137,11 @@ declare namespace Group {
   }
 
   type Event = {
-    meta: Event.Meta
     groupId: string
     groupName?: string
+    amount?: number
     trigger: Participant
+    requiresAction: boolean
   }
 }
 
@@ -148,6 +153,11 @@ declare namespace Transaction {
     payment: Payment.Context
     billing: Billing
     date: string
+  }
+
+  type Event = {
+    amount?: number
+    
   }
 
 }

@@ -14,6 +14,8 @@ export const REQUEST_URL = {
 
     COMMUNITYINFO: '/community/participating',
     CREATE_COMMUNITYINFO: '/community/create',
-    INVITE_FOLLOWER: '/community/invite'
+    INVITE_FOLLOWER: '/community/invite',
+
+    GET_RECEIVED: '/alarm/received'
   },
 };

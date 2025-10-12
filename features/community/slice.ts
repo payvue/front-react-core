@@ -7,6 +7,7 @@ import { cloneDeep } from 'lodash';
 
 const initial: DomainState<Community.Context> = {
     domain: {
+        id: "" as string,
         hasIssue: true,
         groups: Array.from([])
     },

@@ -1,4 +1,4 @@
-import { UserContext, useUserContext } from "@/components/context/user"
+import { useUserContext } from "@/components/context/user"
 import APPLICATION_ERROR_CODE from "@/constants/error"
 import PATH from "@/constants/path"
 import { responseCode } from "@/features/apis"
@@ -6,6 +6,8 @@ import { Request } from "@/types"
 import { useMutation } from "@tanstack/react-query"
 import { useRouter } from "next/navigation"
 import useAuthAPI from "./api"
+import { setLocalStorageItem } from "@/util/localStorage"
+import { LOCAL_STORAGE_KEY } from "@/constants"
 
 interface LoginRequest {
     email: string
@@ -23,6 +25,7 @@ const useAuthQuery = () => {
         mutationFn: (data: LoginRequest) => loginAPI<LoginRequest>(data),
         onSuccess: ({ code, data }) => {
             if(code === responseCode.SUCCESS) {
+                setLocalStorageItem(LOCAL_STORAGE_KEY.ACCESS_TOKEN, data.access)
                 authorized(data.access)
             }
         },

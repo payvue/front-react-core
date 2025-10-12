@@ -10,6 +10,7 @@ import { AppProvider } from "@/lib/contexts/app-context"
 import UserProvider from "@/components/context/user"
 import APIProvider from "@/components/context/api"
 import CommunityProvider from "@/components/context/community"
+import AlarmProvider from "@/components/context/alarm"
 
 export const metadata: Metadata = {
   title: "PayEasy - 스마트한 간편결제",
@@ -27,9 +28,11 @@ export default function RootLayout({ children,}: Readonly<{children: React.React
             <APIProvider>
                 <AppProvider>
                     <UserProvider>
-                      <CommunityProvider>
-                        {children} 
-                      </CommunityProvider> 
+                      <AlarmProvider>
+                        <CommunityProvider>
+                          {children} 
+                        </CommunityProvider> 
+                      </AlarmProvider>
                     </UserProvider>
                   </AppProvider>          
             </APIProvider>

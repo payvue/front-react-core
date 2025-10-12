@@ -27,6 +27,22 @@ export const formatCurrency = (amount: number) => {
   }).format(amount)
 }
 
+export const formatTimestamp = (timestamp: string) => {
+  const date = new Date(timestamp)
+  const now = new Date()
+  const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60))
+
+  if (diffInHours < 1) {
+    const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60))
+    return `${diffInMinutes}분 전`
+  } else if (diffInHours < 24) {
+    return `${diffInHours}시간 전`
+  } else {
+    const diffInDays = Math.floor(diffInHours / 24)
+    return `${diffInDays}일 전`
+  }
+}
+
 export function timeAgo(timestamp: string): string {
   const now = new Date();
   const past = new Date(timestamp);
