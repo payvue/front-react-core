@@ -1,200 +1,25 @@
-import { Address } from "./features/auth";
-import { Transaction } from '@/lib/api/types';
-
-
-interface DomainState<T> {
-  domain: T
-  loading: boolean;
-  error: string | null;  
+interface Wallet {
+  holder: User.Info,
+  limit: Currency	
 }
 
-declare namespace Request {
-  interface Error {
-    code: number;
-    message: string;
-  }
+interface Valueable {
+	values: Product[] | Product	
 }
 
-declare namespace User {
-    interface Context {
-        account: Account
-        info: Info
-        asset: Balance
-    }
-    interface Account {
-        alias: string
-        id: string    
-        token: string  
-        status: AccountStatus
-    }
-    interface AccountStatus {
-        isLoggedIn: boolean
-        lastLoggedIn: string
-        joinAt?: string
-    }
-    interface Info {
-        name: string
-        resident?: string
-        address?: Address
-        contact: Contact
-        birth?: string
-        provider?: string
-        avatar?: string
-    }
-    interface Contact {
-        email: string
-        phone?: string
-    }
+interface Product {
+  name: string
+  type: string
+	price: number
+	amount: number
 }
 
-
-
-declare namespace Asset {
-
-  interface Context {
-  }
-
-  interface Balance {
-    balance: number
-    point: number    
-  }
-
+interface Provider {
+  id: string
+  name?: string
 }
 
-declare namespace Alarm {
-  interface Context {
-    noti: Notification[]
-  }
-
-  interface Notification {
-    id: string    
-    title: string
-    message: string
-    timestamp: string
-    event: Event.Context<keyof Event.Namespace>    
-  } 
-}
-
-declare namespace Event {
-  
-  type Context<T extends keyof Namespace> = {
-    type: T
-    action: string
-    meta: Meta
-    content: ExtractEvent<T>
-  }     
-
-  type Namespace = {
-    Group: typeof Group.Event
-    Transaction: typeof Transaction.Event
-    System: typeof System.Event
-  }  
-
-  type ExtractEvent<T extends keyof Namespace> = 
-    Namespace[T] extends { Event: infer E } ? E : never 
-
-  type Meta = {
-    description: string
-    isRead: boolean    
-  }
-
-}
-
-declare namespace Community {
-  interface Context {
-    id: string
-    hasIssue: boolean
-    groups: Group.Context[]
-  }
-}
-
-declare namespace Group {
-  interface Context {
-    id?: string
-    name: string
-    description: string
-    members: Participant[]
-    shared: Balance
-    Transactions?: Transaction[]
-    createdDate?: string
-  }
-  interface Participant {
-    id?: string
-    info: User.Info
-    status?: User.AccountStatus
-    role: "leader" | "member" | "follower"
-    hasNewActivity?: boolean
-    contribution: Contribution
-    policy: Policy
-  }
-  interface Contribution {
-    amount: number
-    joinDate: string
-  }
-
-  interface Policy {
-    active: boolean
-  }
-
-  type Event = {
-    groupId: string
-    groupName?: string
-    amount?: number
-    trigger: Participant
-    requiresAction: boolean
-  }
-}
-
-
-declare namespace Transaction {
-  interface Context {
-    id: string
-    paidBy: User.Info
-    payment: Payment.Context
-    billing: Billing
-    date: string
-  }
-
-  type Event = {
-    amount?: number
-    
-  }
-
-}
-
-declare namespace Payment {
-
-  interface Context {
-    type: "payment" | "charge" | "transfer" | "refund" | "point_converison"
-    method: Method
-    billing: Billing
-  }
-  interface Method {
-    type: "card" | "bank" | "mobile"
-    name: string
-    details: string
-    isDefault: boolean
-    isActive: boolean
-  }
-  interface Billing {
-    merchant?: string
-    amount: number
-    description: string
-    status: "completed" | "pending" | "failed"
-    category: string
-  }  
-
-}
-
-interface Balance {
-  balance: number
-  point?: number    
-}
-
-interface Address {
-  city: string;
-  district: string;
-  street: string;
-  postCode: string;
-  detailed: string;
+interface ExecutionStrategy {
+  type: string
+  execute: () => void
 }
