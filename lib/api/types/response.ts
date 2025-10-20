@@ -7,5 +7,4 @@ interface APIResponse<T = undefined> {
   data?: T;
 }
 
-
 export default APIResponse
