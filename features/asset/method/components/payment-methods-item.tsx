@@ -57,4 +57,5 @@ const PaymentMethodItem = ({ method, onDelete, onSetDefault }: PaymentMethodItem
   )
 }
 
+
 export default PaymentMethodItem

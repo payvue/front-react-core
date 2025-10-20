@@ -16,7 +16,7 @@ interface CardSectionProps {
 export const CardSection = ({ icon, title, description, children }: CardSectionProps) => (
   <Card>
     <CardHeader>
-      <CardTitle className="flex itemscenter gap-2">
+      <CardTitle className="flex items-center gap-2">
         {icon}
         {title}
       </CardTitle>

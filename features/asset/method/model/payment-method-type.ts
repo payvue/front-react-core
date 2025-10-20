@@ -1,6 +1,6 @@
-import type { PaymentMethodSchema, PaymentMethodType as PaymentMethodCategory } from "../types/payment-method"
+import { PaymentMethodType as PaymentMethodCategory, PaymentMethodSchema } from "../types/payment-method"
 
-export interface PaymentMethodResponse {
+interface PaymentMethodResponse {
   id: string
   type?: PaymentMethodCategory | string
   name: string
@@ -49,7 +49,6 @@ class PaymentMethodModel implements PaymentMethodSchema {
     if (!value) {
       return "card"
     }
-
     const normalized = typeof value === "string" ? value.toLowerCase() : value
     switch (normalized) {
       case "card":
@@ -131,4 +130,5 @@ class PaymentMethodModel implements PaymentMethodSchema {
   }
 }
 
+export type { PaymentMethodResponse }
 export { PaymentMethodModel }

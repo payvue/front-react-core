@@ -16,6 +16,9 @@ export const REQUEST_URL = {
     CREATE_COMMUNITYINFO: '/community/create',
     INVITE_FOLLOWER: '/community/invite',
 
-    GET_RECEIVED: '/alarm/received'
+    GET_RECEIVED: '/alarm/received',
+
+    PROCESS_PAYMENT: '/payment',
+    CANCELLED_PAYMENT: '/patment/cancel'
   },
 };

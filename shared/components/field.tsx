@@ -1,23 +1,68 @@
-import type { ReactNode } from 'react'
+import { Input } from "@/components/ui/input"
+import { Label } from "@radix-ui/react-label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
-interface FieldProps {
+
+interface TextFieldProps {
   label: string
-  description?: string
-  action?: ReactNode
-  children: ReactNode
+  value: string
+  onChange: (value: string) => void
+  placeholder?: string
+  id?: string
+  type?: string
 }
 
-const FormField = ({ label, description, action, children }: FieldProps) => (
+export const TextField = ({ label, value, onChange, placeholder, id, type }: TextFieldProps) => (
+  <LabeledField label={label} htmlFor={id}>
+    <Input id={id} placeholder={placeholder} value={value} type={type} onChange={(e) => onChange(e.target.value)} />
+  </LabeledField>
+)
+
+interface DynamicFieldProps {
+  label: string
+  children: React.ReactNode
+}
+
+export const DynamicField = ({ label, children }: DynamicFieldProps) => (
+  <LabeledField label={label}>{children}</LabeledField>
+)
+
+interface LabeledFieldProps {
+  label: string
+  htmlFor?: string
+  children: React.ReactNode
+}
+
+export const LabeledField = ({ label, htmlFor, children }: LabeledFieldProps) => (
   <div className="space-y-2">
-    <div className="flex items-center justify-between">
-      <div>
-        <p className="text-sm font-medium text-gray-700">{label}</p>
-        {description && <p className="text-xs text-gray-500 mt-1">{description}</p>}
-      </div>
-      {action}
-    </div>
+    <Label htmlFor={htmlFor}>{label}</Label>
     {children}
   </div>
 )
 
-export default FormField
+interface SelectFieldProps<T extends string> {
+  label: string;
+  value: T;
+  onChange: (value: T) => void;
+  options: Array<{ value: T; label: string }>;
+  placeholder?: string;
+}
+
+export function SelectField<T extends string>({ label, value, onChange, options, placeholder }: SelectFieldProps<T>) {
+  return (
+    <LabeledField label={label}>
+      <Select value={value} onValueChange={onChange}>
+        <SelectTrigger>
+          <SelectValue placeholder={placeholder || "선택하세요"} />
+        </SelectTrigger>
+        <SelectContent>
+          {options.map((option) => (
+            <SelectItem key={option.value} value={option.value}>
+              {option.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </LabeledField>
+  )
+}
