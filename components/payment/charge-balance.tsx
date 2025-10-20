@@ -5,52 +5,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Wallet, CreditCard } from "lucide-react"
+import { Wallet } from "lucide-react"
+import { usePayContext } from "@/features/pay/contexts/pay"
 
 const chargeAmounts = [10000, 30000, 50000, 100000, 200000, 500000]
+const formatCurrency = (value: number) =>
+  new Intl.NumberFormat("ko-KR").format(value)
 
-export function ChargeBalance() {
-  const [selectedAmount, setSelectedAmount] = useState<number | null>(null)
-  const [customAmount, setCustomAmount] = useState("")
-  const [paymentMethod, setPaymentMethod] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
-
-  const handleAmountSelect = (amount: number) => {
-    setSelectedAmount(amount)
-    setCustomAmount("")
-  }
-
-  const handleCustomAmountChange = (value: string) => {
-    setCustomAmount(value)
-    setSelectedAmount(null)
-  }
-
-  const handleCharge = async () => {
-    const amount = selectedAmount || Number.parseInt(customAmount)
-    if (!amount || !paymentMethod) return
-
-    setIsLoading(true)
-
-    // Simulate charge process
-    await new Promise((resolve) => setTimeout(resolve, 2000))
-
-    // Update user balance in localStorage
-    const userData = localStorage.getItem("user")
-    if (userData) {
-      const user = JSON.parse(userData)
-      user.balance += amount
-      localStorage.setItem("user", JSON.stringify(user))
-    }
-
-    setIsLoading(false)
-    alert(`${amount.toLocaleString()}원이 충전되었습니다!`)
-    window.location.reload()
-  }
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("ko-KR").format(amount)
-  }
+export default function ChargeBalance() {
+  const [amount, setAmount] = useState<number | null>(null)
+  const { open } = usePayContext()
 
   return (
     <Card>
@@ -64,14 +28,14 @@ export function ChargeBalance() {
         <div>
           <Label className="text-base font-medium">충전 금액 선택</Label>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-3">
-            {chargeAmounts.map((amount) => (
+            {chargeAmounts.map((value) => (
               <Button
-                key={amount}
-                variant={selectedAmount === amount ? "default" : "outline"}
-                onClick={() => handleAmountSelect(amount)}
+                key={value}
+                variant={amount === value ? "default" : "outline"}
+                onClick={() => setAmount(value)}
                 className="h-12"
               >
-                {formatCurrency(amount)}원
+                {formatCurrency(value)}원
               </Button>
             ))}
           </div>
@@ -83,44 +47,19 @@ export function ChargeBalance() {
             id="customAmount"
             type="number"
             placeholder="충전할 금액을 입력하세요"
-            value={customAmount}
-            onChange={(e) => handleCustomAmountChange(e.target.value)}
+            value={amount ?? ""}
+            onChange={(e) => setAmount(Number(e.target.value) || null)}
             className="mt-2"
           />
         </div>
 
-        <div>
-          <Label>결제 수단</Label>
-          <Select value={paymentMethod} onValueChange={setPaymentMethod}>
-            <SelectTrigger className="mt-2">
-              <SelectValue placeholder="결제 수단을 선택하세요" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="card1">
-                <div className="flex items-center gap-2">
-                  <CreditCard className="h-4 w-4" />
-                  신한카드 (**** 1234)
-                </div>
-              </SelectItem>
-              <SelectItem value="bank1">
-                <div className="flex items-center gap-2">
-                  <CreditCard className="h-4 w-4" />
-                  국민은행 (110-***-*****)
-                </div>
-              </SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
         <Button
-          onClick={handleCharge}
-          disabled={(!selectedAmount && !customAmount) || !paymentMethod || isLoading}
+          onClick={() => amount && open({ product: { name: '온라인 캐시 충전', type: '충전', price: amount, amount: 1 } })}
+          disabled={!amount}
           className="w-full"
           size="lg"
         >
-          {isLoading
-            ? "충전 중..."
-            : `${formatCurrency(selectedAmount || Number.parseInt(customAmount) || 0)}원 충전하기`}
+          {amount ? `${formatCurrency(amount)}원 충전하기` : "충전하기"}
         </Button>
       </CardContent>
     </Card>
