@@ -162,29 +162,7 @@ declare namespace Transaction {
 
 }
 
-declare namespace Payment {
 
-  interface Context {
-    type: "payment" | "charge" | "transfer" | "refund" | "point_converison"
-    method: Method
-    billing: Billing
-  }
-  interface Method {
-    type: "card" | "bank" | "mobile"
-    name: string
-    details: string
-    isDefault: boolean
-    isActive: boolean
-  }
-  interface Billing {
-    merchant?: string
-    amount: number
-    description: string
-    status: "completed" | "pending" | "failed"
-    category: string
-  }  
-
-}
 
 interface Balance {
   balance: number
@@ -197,4 +175,30 @@ interface Address {
   street: string;
   postCode: string;
   detailed: string;
+}
+
+interface Wallet {
+  holder: User.Info,
+  limit: Currency	
+}
+
+interface Valueable {
+	values: Product[] | Product	
+}
+
+interface Product {
+  name: string
+  type: string
+	price: number
+	amount: number
+}
+
+interface Provider {
+  id: string
+  name?: string
+}
+
+interface ExecutionStrategy {
+  type: string
+  execute: () => void
 }
