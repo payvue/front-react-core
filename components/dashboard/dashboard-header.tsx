@@ -58,9 +58,9 @@ export function DashboardHeader() {
       <div className="flex items-center justify-between">
         <div>
           <Link href="/dashboard">
-            <h1 className="text-2xl font-bold text-primary cursor-pointer">PayEasy</h1>
+            <h1 className="text-2xl font-bold text-primary cursor-pointer">PayVue</h1>
           </Link>
-          <p className="text-sm text-muted-foreground">간편결제 플랫폼</p>
+          <p className="text-sm text-muted-foreground">결제를 편리하게</p>
         </div>
 
         <nav className="hidden md:flex items-center gap-6">

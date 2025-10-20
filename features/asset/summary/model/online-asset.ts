@@ -1,6 +1,7 @@
 import { OnlineAssetCategory, OnlineAssetSchema, OnlineAssetStatus } from "../types/online-asset"
+import { isOnlineAssetCategory } from "../utils/online-asset"
 
-export interface OnlineAssetResponse {
+interface OnlineAssetResponse {
   id: string
   name: string
   category?: string
@@ -56,7 +57,7 @@ class OnlineAssetModel implements OnlineAssetSchema {
     }
 
     const normalized = value.toLowerCase()
-    if (["game", "music", "gift", "shopping", "cash", "mileage"].includes(normalized)) {
+    if (isOnlineAssetCategory(normalized)) {
       return normalized as OnlineAssetCategory
     }
 
@@ -119,4 +120,5 @@ class OnlineAssetModel implements OnlineAssetSchema {
   }
 }
 
+export type { OnlineAssetResponse }
 export { OnlineAssetModel }

@@ -82,7 +82,7 @@ export function OnlineAssets() {
 
   return (
     <Card>
-      <CardHeader className="flex flex-row itemscenter justify-between">
+      <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>온라인 재화 관리</CardTitle>
         <div className="flex items-center gap-2">
           <Button size="sm" variant="outline" onClick={() => refetch()}>

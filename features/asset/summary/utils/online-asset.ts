@@ -1,13 +1,13 @@
 import { createElement, ReactNode } from "react"
-import { Gamepad2, Gift, Music, Plane, ShoppingCart, Wallet } from "lucide-react"
+import { Gamepad2, Gift, Music, Plane, ShoppingCart } from "lucide-react"
 import { OnlineAssetCategory, OnlineAssetStatus } from "../types/online-asset"
+import { OnlineAssetCategoryEnum } from "../types/online-asset"
 
-type BadgeVariant = "default" | "secondary" | "destructive" | "outline"
 
-interface StatusMeta {
-  label: string
-  variant: BadgeVariant
-  className?: string
+export const isOnlineAssetCategory = (
+  value: unknown
+): value is OnlineAssetCategory => {
+  return (Object.values(OnlineAssetCategoryEnum) as string[]).includes(value as string)
 }
 
 export const resolveAssetIcon = (category: OnlineAssetCategory): ReactNode => {
@@ -19,7 +19,7 @@ export const resolveAssetIcon = (category: OnlineAssetCategory): ReactNode => {
     case "shopping":
       return createElement(ShoppingCart, { className: "h-5 w-5" })
     case "cash":
-      return createElement(Wallet, { className: "h-5 w-5" })
+      return createElement(Gift, { className: "h-5 w-5" })
     case "mileage":
       return createElement(Plane, { className: "h-5 w-5" })
     case "gift":

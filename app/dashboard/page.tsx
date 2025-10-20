@@ -1,6 +1,5 @@
 "use client"
 
-import { useEffect } from "react"
 import { DashboardLayout } from "@/components/dashboard/dashboard-layout"
 import { BalanceCard } from "@/components/dashboard/balance-card"
 import { RecentTransactions } from "@/components/dashboard/recent-transactions"
@@ -17,13 +16,6 @@ export default function DashboardPage() {
   const { isAuthenticated } = useUserContext()
   const { groups } = useAppSelector((state) => state.community.domain)
   const router = useRouter()
-
-  useEffect(() => {
-    if(!isAuthenticated()) {
-      router.push('/login')
-      return
-    }
-  }, [])
 
   return (
     <DashboardLayout>

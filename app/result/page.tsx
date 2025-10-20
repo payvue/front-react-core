@@ -12,6 +12,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { CheckCircle2, XCircle, Home } from 'lucide-react'
 import { responseCode } from '@/features/apis'
+import { useUserContext } from '@/components/context/user'
 
 interface CodeStyle {
   icon: React.ReactNode
@@ -55,6 +56,8 @@ const ResultPage = () => {
 
   const style = getCodeStyle(action, codeParam)
 
+  const { isAuthenticated } = useUserContext()
+
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-purple-50 to-purple-100">
       <Card className="w-full max-w-md mx-auto shadow-xl border-0 bg-white bg-opacity-90">
@@ -86,26 +89,35 @@ const ResultPage = () => {
           </div>
 
           <div className="space-y-3">
-            {style.isSuccess ? (
-              <Button
-                onClick={() => (window.location.href = '/login')}
-                className="w-full bg-purple-700 text-white hover:bg-purple-800 transition-colors">
-                로그인 하기
-              </Button>
-            ) : (
-              <Button
-                onClick={() => window.history.back()}
-                className="w-full bg-purple-700 text-white hover:bg-purple-800 transition-colors">
-                다시 시도하기
-              </Button>
+            {!isAuthenticated() && (
+              <>
+                {style.isSuccess ? (
+                  <Button
+                    onClick={() => (window.location.href = '/login')}
+                    className="w-full bg-purple-700 text-white hover:bg-purple-800 transition-colors"
+                  >
+                    로그인 하기
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={() => window.history.back()}
+                    className="w-full bg-purple-700 text-white hover:bg-purple-800 transition-colors"
+                  >
+                    다시 시도하기
+                  </Button>
+                )}
+
+                <Button
+                  onClick={() => (window.location.href = '/')}
+                  variant="outline"
+                  className="w-full border-purple-300 text-purple-700 hover:bg-purple-50 transition-colors"
+                >
+                  <Home className="mr-2 h-4 w-4" />
+                  홈으로 돌아가기
+                </Button>
+              </>
             )}
-            <Button
-              onClick={() => (window.location.href = '/')}
-              variant="outline"
-              className="w-full border-purple-300 text-purple-700 hover:bg-purple-50 transition-colors">
-              <Home className="mr-2 h-4 w-4" />
-              홈으로 돌아가기
-            </Button>
+
           </div>
         </CardContent>
       </Card>

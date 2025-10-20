@@ -1,27 +1,24 @@
-import { forwardRef } from 'react'
-import { cn } from '@/lib/utils'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
-  error?: string
+interface CycleSelectProps {
+  value: string
+  onChange: (value: string) => void
+  options: Array<{ value: string; label: string }>
 }
 
-const SimpleSelect = forwardRef<HTMLSelectElement, SelectProps>(({ className, error, children, ...props }, ref) => (
-  <div className="space-y-1">
-    <select
-      ref={ref}
-      className={cn(
-        'w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary',
-        error && 'border-destructive focus-visible:ring-destructive/30',
-        className,
-      )}
-      {...props}
-    >
-      {children}
-    </select>
-    {error && <p className="text-xs text-destructive">{error}</p>}
-  </div>
-))
+const CycleSelect = ({ value, onChange, options }: CycleSelectProps) => (
+  <Select value={value} onValueChange={onChange}>
+    <SelectTrigger>
+      <SelectValue placeholder="주기 선택" />
+    </SelectTrigger>
+    <SelectContent>
+      {options.map((option) => (
+        <SelectItem key={option.value} value={option.value}>
+          {option.label}
+        </SelectItem>
+      ))}
+    </SelectContent>
+  </Select>
+)
 
-SimpleSelect.displayName = 'SimpleSelect'
-
-export default SimpleSelect
+export { CycleSelect }

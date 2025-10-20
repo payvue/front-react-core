@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query"
 import type { Method } from "axios"
 import request from "@/lib/api/client"
 import APIResponse from "@/lib/api/types/response"
-import { PaymentMethodModel, PaymentMethodResponse } from "@/features/asset/method/model/payment-method-type"
+import { PaymentMethodModel, PaymentMethodResponse } from "../model/payment-method-type"
 
 export const PAYMENT_METHOD_QUERY_KEY = ["paymentMethods"] as const
 const PAYMENT_METHOD_ENDPOINT = "/asset/payment/methods"
