@@ -1,28 +1,13 @@
 "use client"
 
-import { useEffect, useState } from "react"
 import { DashboardHeader } from "@/components/dashboard/dashboard-header"
 import { AssetOverview } from "@/components/assets/asset-overview"
 import { AssetTransactions } from "@/components/assets/asset-transactions"
 import { AssetAnalytics } from "@/components/assets/asset-analytics"
-import { OnlineAssets } from "@/components/payment/online-assets"
+import { OnlineAssets } from "@/features/asset/summary/components/online-assets"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 export default function AssetsPage() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
-
-  useEffect(() => {
-    const userData = localStorage.getItem("user")
-    if (!userData) {
-      window.location.href = "/login"
-      return
-    }
-    setIsLoggedIn(true)
-  }, [])
-
-  if (!isLoggedIn) {
-    return <div>로딩 중...</div>
-  }
 
   return (
     <div className="min-h-screen bg-background">

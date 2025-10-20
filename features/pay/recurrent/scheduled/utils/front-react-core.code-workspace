@@ -1,0 +1,17 @@
+{
+	"folders": [
+		{
+			"path": "../../../../.."
+		},
+		{
+			"path": "../../../../../../mock"
+		}
+	],
+	"settings": {
+		"terminal.integrated.defaultProfile.osx": "bash",
+		"terminal.integrated.enableMultiLinePasteWarning": false,
+		"terminal.integrated.fontSize": 20,
+		"C_Cpp.debugger.useBacktickCommandSubstitution": true,
+		"debug.onTaskErrors": "debugAnyway"
+	}
+}
