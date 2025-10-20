@@ -66,12 +66,15 @@
     "recharts": "latest",
     "redux-persist": "^6.0.0",
     "sonner": "latest",
+    "swiper": "^12.0.2",
     "tailwind-merge": "^2.5.5",
     "tailwindcss-animate": "^1.0.7",
     "vaul": "latest",
     "zod": "3.25.67"
   },
   "devDependencies": {
+    "@naverpay/eslint-config": "^2.4.0",
+    "@naverpay/prettier-config": "^1.0.1",
     "@tailwindcss/postcss": "^4.1.9",
     "@types/event-source-polyfill": "^1.0.5",
     "@types/lodash": "^4.17.20",

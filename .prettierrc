@@ -20,5 +20,6 @@
   "vueIndentScriptAndStyle": false,
   "endOfLine": "auto",
   "embeddedLanguageFormatting": "auto",
-  "singleAttributePerLine": false
+  "singleAttributePerLine": false,
+  "extends": "@naverpay/prettier-config"  
 }
