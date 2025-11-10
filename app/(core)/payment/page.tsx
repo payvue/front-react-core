@@ -1,6 +1,5 @@
 "use client"
 
-import { DashboardHeader } from "@/components/dashboard/dashboard-header"
 import { PaymentMethods } from "@/features/asset/method/components/payment-methods"
 import { OnlineAssets } from "@/features/asset/summary/components/online-assets"
 import { MoneyTransfer } from "@/components/payment/money-transfer"
@@ -14,16 +13,12 @@ import AutoCharge from "@/features/pay/recurrent/charged/components/auto-charge"
 export default function PaymentPage() {
 
   return (
-    <div className="min-h-screen bg-background">
-      <DashboardHeader />
-
-      <main className="container mx-auto px-6 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">결제 관리</h1>
-          <p className="text-muted-foreground">결제 수단, 잔액 충전, 온라인 재화를 관리하세요</p>
-        </div>
-
-        <Tabs defaultValue="charge" className="space-y-6">
+    <div className="space-y-8">
+      <header>
+        <h1 className="text-3xl font-bold">결제 관리</h1>
+        <p className="text-muted-foreground">결제 수단, 잔액 충전, 온라인 재화를 관리하세요</p>
+      </header>
+      <Tabs defaultValue="charge" className="space-y-6">
           <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="charge">잔액 충전</TabsTrigger>
             <TabsTrigger value="scheduled">예약 결제</TabsTrigger>
@@ -61,8 +56,7 @@ export default function PaymentPage() {
             <TabsContent value="methods" className="space-y-6">
               <PaymentMethods />
             </TabsContent>                                
-        </Tabs>
-      </main>
+      </Tabs>
     </div>
   )
 }

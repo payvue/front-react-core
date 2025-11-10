@@ -1,6 +1,5 @@
 "use client"
 
-import { DashboardLayout } from "@/components/dashboard/dashboard-layout"
 import { BalanceCard } from "@/components/dashboard/balance-card"
 import { RecentTransactions } from "@/components/dashboard/recent-transactions"
 import { PointsRewardsDialog } from "@/components/dashboard/points-card"
@@ -18,8 +17,7 @@ export default function DashboardPage() {
   const router = useRouter()
 
   return (
-    <DashboardLayout>
-      <div className="container mx-auto px-6 py-8">
+      <div className="space-y-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
           <BalanceCard />
 
@@ -70,6 +68,5 @@ export default function DashboardPage() {
           </Card>
         </div>
       </div>
-    </DashboardLayout>
   )
 }
