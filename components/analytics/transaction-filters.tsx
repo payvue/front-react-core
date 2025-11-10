@@ -1,15 +1,21 @@
-"use client"
+'use client'
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Filter, X } from "lucide-react"
+import { useState } from 'react'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Filter, X } from 'lucide-react'
 
-interface FilterState {
+export interface TransactionFilterState {
   dateRange: {
     start: string
     end: string
@@ -24,8 +30,8 @@ interface FilterState {
 }
 
 interface TransactionFiltersProps {
-  filters: FilterState
-  onFiltersChange: (filters: FilterState) => void
+  filters: TransactionFilterState
+  onFiltersChange: (filters: TransactionFilterState) => void
   onReset: () => void
 }
 
@@ -43,7 +49,7 @@ export function TransactionFilters({ filters, onFiltersChange, onReset }: Transa
     onFiltersChange({
       ...filters,
       [parentKey]: {
-        ...filters[parentKey as keyof FilterState],
+        ...filters[parentKey as keyof TransactionFilterState],
         [childKey]: value,
       },
     })
@@ -52,9 +58,9 @@ export function TransactionFilters({ filters, onFiltersChange, onReset }: Transa
   const getActiveFiltersCount = () => {
     let count = 0
     if (filters.dateRange.start || filters.dateRange.end) count++
-    if (filters.transactionType && filters.transactionType !== "all") count++
-    if (filters.category && filters.category !== "all") count++
-    if (filters.status && filters.status !== "all") count++
+    if (filters.transactionType && filters.transactionType !== 'all') count++
+    if (filters.category && filters.category !== 'all') count++
+    if (filters.status && filters.status !== 'all') count++
     if (filters.amountRange.min || filters.amountRange.max) count++
     return count
   }
@@ -72,7 +78,7 @@ export function TransactionFilters({ filters, onFiltersChange, onReset }: Transa
           </div>
           <div className="flex items-center gap-2">
             <Button variant="outline" size="sm" onClick={() => setIsExpanded(!isExpanded)}>
-              {isExpanded ? "접기" : "펼치기"}
+              {isExpanded ? '접기' : '펼치기'}
             </Button>
             {activeFiltersCount > 0 && (
               <Button variant="ghost" size="sm" onClick={onReset}>
@@ -94,7 +100,7 @@ export function TransactionFilters({ filters, onFiltersChange, onReset }: Transa
                 id="start-date"
                 type="date"
                 value={filters.dateRange.start}
-                onChange={(e) => updateNestedFilter("dateRange", "start", e.target.value)}
+                onChange={(e) => updateNestedFilter('dateRange', 'start', e.target.value)}
               />
             </div>
             <div className="space-y-2">
@@ -103,7 +109,7 @@ export function TransactionFilters({ filters, onFiltersChange, onReset }: Transa
                 id="end-date"
                 type="date"
                 value={filters.dateRange.end}
-                onChange={(e) => updateNestedFilter("dateRange", "end", e.target.value)}
+                onChange={(e) => updateNestedFilter('dateRange', 'end', e.target.value)}
               />
             </div>
           </div>
@@ -111,7 +117,10 @@ export function TransactionFilters({ filters, onFiltersChange, onReset }: Transa
           {/* Transaction Type */}
           <div className="space-y-2">
             <Label>거래 유형</Label>
-            <Select value={filters.transactionType} onValueChange={(value) => updateFilter("transactionType", value)}>
+            <Select
+              value={filters.transactionType}
+              onValueChange={(value) => updateFilter('transactionType', value)}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="거래 유형 선택" />
               </SelectTrigger>
@@ -129,7 +138,10 @@ export function TransactionFilters({ filters, onFiltersChange, onReset }: Transa
           {/* Category */}
           <div className="space-y-2">
             <Label>카테고리</Label>
-            <Select value={filters.category} onValueChange={(value) => updateFilter("category", value)}>
+            <Select
+              value={filters.category}
+              onValueChange={(value) => updateFilter('category', value)}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="카테고리 선택" />
               </SelectTrigger>
@@ -148,7 +160,7 @@ export function TransactionFilters({ filters, onFiltersChange, onReset }: Transa
           {/* Status */}
           <div className="space-y-2">
             <Label>상태</Label>
-            <Select value={filters.status} onValueChange={(value) => updateFilter("status", value)}>
+            <Select value={filters.status} onValueChange={(value) => updateFilter('status', value)}>
               <SelectTrigger>
                 <SelectValue placeholder="상태 선택" />
               </SelectTrigger>
@@ -170,7 +182,7 @@ export function TransactionFilters({ filters, onFiltersChange, onReset }: Transa
                 type="number"
                 placeholder="0"
                 value={filters.amountRange.min}
-                onChange={(e) => updateNestedFilter("amountRange", "min", e.target.value)}
+                onChange={(e) => updateNestedFilter('amountRange', 'min', e.target.value)}
               />
             </div>
             <div className="space-y-2">
@@ -180,7 +192,7 @@ export function TransactionFilters({ filters, onFiltersChange, onReset }: Transa
                 type="number"
                 placeholder="1000000"
                 value={filters.amountRange.max}
-                onChange={(e) => updateNestedFilter("amountRange", "max", e.target.value)}
+                onChange={(e) => updateNestedFilter('amountRange', 'max', e.target.value)}
               />
             </div>
           </div>

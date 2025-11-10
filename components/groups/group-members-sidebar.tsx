@@ -1,11 +1,12 @@
-"use client"
+'use client'
 
-import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { ScrollArea } from "@/components/ui/scroll-area"
+import { useState, useEffect } from 'react'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { ScrollArea } from '@/components/ui/scroll-area'
 import {
-  Users, ChevronRight,
+  Users,
+  ChevronRight,
   ChevronLeft,
   Circle,
   ChevronUp,
@@ -14,15 +15,15 @@ import {
   MessageCircle,
   MoreVertical,
   CreditCard,
-  Send
-} from "lucide-react"
-import { useAppSelector } from "@/lib/redux/hooks"
-import { formatCurrency, formatTimestamp } from "@/util/display"
-import { Alarm } from "@/types"
-import { useAlarmContext } from "../context/alarm"
-import { GroupAlarmsSidebar } from "./group-alarm-sidebar"
-import { Avatar, AvatarFallback } from "@radix-ui/react-avatar"
-import { Separator } from "@radix-ui/react-select"
+  Send,
+} from 'lucide-react'
+import { useAppSelector } from '@/lib/redux/hooks'
+import { formatCurrency, formatTimestamp } from '@/util/display'
+import { Alarm } from '@/types'
+import { useAlarmContext } from '../context/alarm'
+import { GroupAlarmsSidebar } from './group-alarm-sidebar'
+import { Avatar, AvatarFallback } from '@radix-ui/react-avatar'
+import { Separator } from '@radix-ui/react-select'
 
 interface GroupMembersSidebarProps {
   onCollapseChange?: (isCollapsed: boolean) => void
@@ -31,10 +32,12 @@ interface GroupMembersSidebarProps {
 export function GroupMembersSidebar({ onCollapseChange }: GroupMembersSidebarProps = {}) {
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [isAnimatingOut, setIsAnimatingOut] = useState(false)
-  const [selectedGroup, setSelectedGroup] = useState<string>("1")
+  const [selectedGroup, setSelectedGroup] = useState<string>('1')
 
   const [openDropdowns, setOpenDropdowns] = useState<Set<string>>(new Set())
-  const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(["online", "offline"]))
+  const [expandedSections, setExpandedSections] = useState<Set<string>>(
+    new Set(['online', 'offline']),
+  )
   const [isNotificationOpen, setIsNotificationOpen] = useState(true)
 
   const [notifications, setNotifications] = useState<Alarm.Context>({ noti: [] })
@@ -48,18 +51,18 @@ export function GroupMembersSidebar({ onCollapseChange }: GroupMembersSidebarPro
     if (isLoading || !hasMore) return
     setIsLoading(true)
     try {
-      const alarm = await receiveNotifications("Group")
+      const alarm = await receiveNotifications('Group')
       if (alarm && alarm.noti) {
         setNotifications((prev) => ({
           noti: [
             ...prev.noti,
-            ...alarm.noti.filter((n) => !n.event.meta.isRead && n.event.type === "Group"),
+            ...alarm.noti.filter((n) => !n.event.meta.isRead && n.event.type === 'Group'),
           ],
         }))
         setHasMore(alarm.noti.length > 0)
       }
     } catch (error) {
-      console.error("추가 알림 로드 실패:", error)
+      console.error('추가 알림 로드 실패:', error)
     } finally {
       setIsLoading(false)
     }
@@ -82,15 +85,15 @@ export function GroupMembersSidebar({ onCollapseChange }: GroupMembersSidebarPro
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Element
-      if (!target.closest("[data-dropdown]")) {
+      if (!target.closest('[data-dropdown]')) {
         setOpenDropdowns(new Set())
       }
     }
     if (openDropdowns.size > 0) {
-      document.addEventListener("mousedown", handleClickOutside)
+      document.addEventListener('mousedown', handleClickOutside)
     }
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside)
+      document.removeEventListener('mousedown', handleClickOutside)
     }
   }, [openDropdowns])
 
@@ -142,8 +145,8 @@ export function GroupMembersSidebar({ onCollapseChange }: GroupMembersSidebarPro
 
   return (
     <div
-      className={`fixed left-0 top-30 rounded-lg shadow-2xl h-[calc(100vh-5rem-3rem)] w-64 bg-background border-r border-border z-40 flex flex-col transition-all duration-300 ease-in-out ${
-        isAnimatingOut ? "animate-out slide-out-to-left-full" : "animate-in slide-in-from-left-full"
+      className={`fixed left-0 top-[5rem] rounded-lg shadow-2xl h-[calc(100vh-5rem-3rem)] w-64 bg-background border-r border-border z-40 flex flex-col transition-all duration-300 ease-in-out ${
+        isAnimatingOut ? 'animate-out slide-out-to-left-full' : 'animate-in slide-in-from-left-full'
       }`}
     >
       {/* Header */}
@@ -173,14 +176,16 @@ export function GroupMembersSidebar({ onCollapseChange }: GroupMembersSidebarPro
           {Array.from(groups).map((group) => (
             <Button
               key={group.id}
-              variant={selectedGroup === group.id ? "default" : "ghost"}
+              variant={selectedGroup === group.id ? 'default' : 'ghost'}
               size="sm"
               className="w-full justify-start text-left"
               onClick={() => setSelectedGroup(group.id)}
             >
               <div className="flex-1 min-w-0">
                 <div className="font-medium truncate">{group.name}</div>
-                <div className="text-xs text-muted-foreground">{formatCurrency(group.shared.balance)}</div>
+                <div className="text-xs text-muted-foreground">
+                  {formatCurrency(group.shared.balance)}
+                </div>
               </div>
               <Badge variant="secondary" className="ml-2">
                 {group.members.length}
@@ -198,220 +203,244 @@ export function GroupMembersSidebar({ onCollapseChange }: GroupMembersSidebarPro
         <ScrollArea className="h-full p-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
           {currentGroup && (
             <div className="space-y-4 pr-2">
-            {/* Online Members */}
-            {onlineMembers.length > 0 && (
-              <div>
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <Circle className="h-2 w-2 fill-green-500 text-green-500" />
-                    <span className="text-sm font-medium text-green-600">온라인 ({onlineMembers.length})</span>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => toggleSection('online')}
-                    className="h-6 w-6 p-0"
-                  >
-                    {expandedSections.has('online') ? (
-                      <ChevronUp className="h-3 w-3" />
-                    ) : (
-                      <ChevronDown className="h-3 w-3" />
-                    )}
-                  </Button>
-                </div>
-                {expandedSections.has('online') && (
-                  <div className="space-y-2">
-                  {onlineMembers.map((member) => (
-                    <div
-                      key={member.id}
-                      className="flex items-center gap-2 p-2 rounded-lg hover:bg-muted/50 transition-colors group"
+              {/* Online Members */}
+              {onlineMembers.length > 0 && (
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <Circle className="h-2 w-2 fill-green-500 text-green-500" />
+                      <span className="text-sm font-medium text-green-600">
+                        온라인 ({onlineMembers.length})
+                      </span>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => toggleSection('online')}
+                      className="h-6 w-6 p-0"
                     >
-                      <div className="relative">
-                        <Avatar className="h-8 w-8">
-                          <AvatarFallback className="text-xs">{getInitials(member.info.name)}</AvatarFallback>
-                        </Avatar>
-                        <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-background" />
-                        {/* Activity Indicator */}
-                        {member.hasNewActivity && (
-                          <div className="absolute -top-1 -right-1 w-3 h-3 bg-blue-500 rounded-full border-2 border-background animate-pulse" />
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-medium truncate">{member.info.name}</span>
-                          {member.role === "leader" && <Crown className="h-3 w-3 text-yellow-500" />}
-                        </div>
-                        <span className="text-xs text-green-600">온라인</span>
-                      </div>
-                      {/* Member Action Dropdown */}
-                      <div className="flex items-center gap-1 md:opacity-0 md:group-hover:opacity-100 transition-opacity relative" data-dropdown>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-6 w-6"
-                          onClick={() => handleMemberAction(member.id, "chat")}
+                      {expandedSections.has('online') ? (
+                        <ChevronUp className="h-3 w-3" />
+                      ) : (
+                        <ChevronDown className="h-3 w-3" />
+                      )}
+                    </Button>
+                  </div>
+                  {expandedSections.has('online') && (
+                    <div className="space-y-2">
+                      {onlineMembers.map((member) => (
+                        <div
+                          key={member.id}
+                          className="flex items-center gap-2 p-2 rounded-lg hover:bg-muted/50 transition-colors group"
                         >
-                          <MessageCircle className="h-3 w-3" />
-                        </Button>
-                        <div className="relative">
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            className="h-6 w-6"
-                            onClick={() => toggleDropdown(member.id)}
-                          >
-                            <MoreVertical className="h-3 w-3" />
-                          </Button>
-                          {openDropdowns.has(member.id) && (
-                            <div className="absolute right-0 top-full mt-1 w-28 bg-white border border-gray-200 rounded-md shadow-lg z-[9999]">
-                              <div className="py-1">
-                                <button 
-                                  className="flex items-center w-full px-3 py-1.5 text-xs hover:bg-gray-100"
-                                  onClick={() => {
-                                    handleMemberAction(member.id, "transfer")
-                                    toggleDropdown(member.id)
-                                  }}
-                                >
-                                  <Send className="mr-2 h-3 w-3" />
-                                  송금하기
-                                </button>
-                                <button 
-                                  className="flex items-center w-full px-3 py-1.5 text-xs hover:bg-gray-100"
-                                  onClick={() => {
-                                    handleMemberAction(member.id, "request")
-                                    toggleDropdown(member.id)
-                                  }}
-                                >
-                                  <CreditCard className="mr-2 h-3 w-3" />
-                                  송금 요청
-                                </button>
-                                <button 
-                                  className="flex items-center w-full px-3 py-1.5 text-xs hover:bg-gray-100"
-                                  onClick={() => {
-                                    handleMemberAction(member.id, "chat")
-                                    toggleDropdown(member.id)
-                                  }}
-                                >
-                                  <MessageCircle className="mr-2 h-3 w-3" />
-                                  채팅하기
-                                </button>
-                              </div>
+                          <div className="relative">
+                            <Avatar className="h-8 w-8">
+                              <AvatarFallback className="text-xs">
+                                {getInitials(member.info.name)}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-background" />
+                            {/* Activity Indicator */}
+                            {member.hasNewActivity && (
+                              <div className="absolute -top-1 -right-1 w-3 h-3 bg-blue-500 rounded-full border-2 border-background animate-pulse" />
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm font-medium truncate">
+                                {member.info.name}
+                              </span>
+                              {member.role === 'leader' && (
+                                <Crown className="h-3 w-3 text-yellow-500" />
+                              )}
                             </div>
-                          )}
+                            <span className="text-xs text-green-600">온라인</span>
+                          </div>
+                          {/* Member Action Dropdown */}
+                          <div
+                            className="flex items-center gap-1 md:opacity-0 md:group-hover:opacity-100 transition-opacity relative"
+                            data-dropdown
+                          >
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-6 w-6"
+                              onClick={() => handleMemberAction(member.id, 'chat')}
+                            >
+                              <MessageCircle className="h-3 w-3" />
+                            </Button>
+                            <div className="relative">
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-6 w-6"
+                                onClick={() => toggleDropdown(member.id)}
+                              >
+                                <MoreVertical className="h-3 w-3" />
+                              </Button>
+                              {openDropdowns.has(member.id) && (
+                                <div className="absolute right-0 top-full mt-1 w-28 bg-white border border-gray-200 rounded-md shadow-lg z-[9999]">
+                                  <div className="py-1">
+                                    <button
+                                      className="flex items-center w-full px-3 py-1.5 text-xs hover:bg-gray-100"
+                                      onClick={() => {
+                                        handleMemberAction(member.id, 'transfer')
+                                        toggleDropdown(member.id)
+                                      }}
+                                    >
+                                      <Send className="mr-2 h-3 w-3" />
+                                      송금하기
+                                    </button>
+                                    <button
+                                      className="flex items-center w-full px-3 py-1.5 text-xs hover:bg-gray-100"
+                                      onClick={() => {
+                                        handleMemberAction(member.id, 'request')
+                                        toggleDropdown(member.id)
+                                      }}
+                                    >
+                                      <CreditCard className="mr-2 h-3 w-3" />
+                                      송금 요청
+                                    </button>
+                                    <button
+                                      className="flex items-center w-full px-3 py-1.5 text-xs hover:bg-gray-100"
+                                      onClick={() => {
+                                        handleMemberAction(member.id, 'chat')
+                                        toggleDropdown(member.id)
+                                      }}
+                                    >
+                                      <MessageCircle className="mr-2 h-3 w-3" />
+                                      채팅하기
+                                    </button>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          </div>
                         </div>
-                      </div>
+                      ))}
                     </div>
-                  ))}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Separator */}
-            {onlineMembers.length > 0 && offlineMembers.length > 0 && <Separator />}
-
-            {/* Offline Members */}
-            {offlineMembers.length > 0 && (
-              <div>
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <Circle className="h-2 w-2 fill-gray-400 text-gray-400" />
-                    <span className="text-sm font-medium text-gray-600">오프라인 ({offlineMembers.length})</span>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => toggleSection('offline')}
-                    className="h-6 w-6 p-0"
-                  >
-                    {expandedSections.has('offline') ? (
-                      <ChevronUp className="h-3 w-3" />
-                    ) : (
-                      <ChevronDown className="h-3 w-3" />
-                    )}
-                  </Button>
+                  )}
                 </div>
-                {expandedSections.has('offline') && (
-                  <div className="space-y-2">
-                  {offlineMembers.map((member) => (
-                    <div
-                      key={member.id}
-                      className="flex items-center gap-2 p-2 rounded-lg hover:bg-muted/50 transition-colors opacity-75 group"
-                    >
-                      <div className="relative">
-                        <Avatar className="h-8 w-8">
-                          <AvatarFallback className="text-xs">{getInitials(member.info.name)}</AvatarFallback>
-                        </Avatar>
-                        <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-gray-400 rounded-full border-2 border-background" />
-                        {/* Activity Indicator for Offline Members */}
-                        {member.hasNewActivity && (
-                          <div className="absolute -top-1 -right-1 w-3 h-3 bg-blue-500 rounded-full border-2 border-background" />
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-medium truncate">{member.info.name}</span>
-                          {member.role === "leader" && <Crown className="h-3 w-3 text-yellow-500" />}
-                        </div>
-                        <span className="text-xs text-muted-foreground">{formatTimestamp(member.status.lastLoggedIn) || "오프라인"}</span>
-                      </div>
-                      {/* Member Action Dropdown for Offline Members */}
-                      <div className="flex items-center gap-1 md:opacity-0 md:group-hover:opacity-100 transition-opacity relative" data-dropdown>
-                        <div className="relative">
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            className="h-6 w-6"
-                            onClick={() => toggleDropdown(member.id)}
-                          >
-                            <MoreVertical className="h-3 w-3" />
-                          </Button>
-                          {openDropdowns.has(member.id) && (
-                            <div className="absolute right-0 top-full mt-1 w-28 bg-white border border-gray-200 rounded-md shadow-lg z-[9999]">
-                              <div className="py-1">
-                                <button 
-                                  className="flex items-center w-full px-3 py-1.5 text-xs hover:bg-gray-100"
-                                  onClick={() => {
-                                    handleMemberAction(member.id, "transfer")
-                                    toggleDropdown(member.id)
-                                  }}
-                                >
-                                  <Send className="mr-2 h-3 w-3" />
-                                  송금하기
-                                </button>
-                                <button 
-                                  className="flex items-center w-full px-3 py-1.5 text-xs hover:bg-gray-100"
-                                  onClick={() => {
-                                    handleMemberAction(member.id, "request")
-                                    toggleDropdown(member.id)
-                                  }}
-                                >
-                                  <CreditCard className="mr-2 h-3 w-3" />
-                                  송금 요청
-                                </button>
-                                <button 
-                                  className="flex items-center w-full px-3 py-1.5 text-xs hover:bg-gray-100"
-                                  onClick={() => {
-                                    handleMemberAction(member.id, "chat")
-                                    toggleDropdown(member.id)
-                                  }}
-                                >
-                                  <MessageCircle className="mr-2 h-3 w-3" />
-                                  메시지 보내기
-                                </button>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      </div>
+              )}
+
+              {/* Separator */}
+              {onlineMembers.length > 0 && offlineMembers.length > 0 && <Separator />}
+
+              {/* Offline Members */}
+              {offlineMembers.length > 0 && (
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <Circle className="h-2 w-2 fill-gray-400 text-gray-400" />
+                      <span className="text-sm font-medium text-gray-600">
+                        오프라인 ({offlineMembers.length})
+                      </span>
                     </div>
-                  ))}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => toggleSection('offline')}
+                      className="h-6 w-6 p-0"
+                    >
+                      {expandedSections.has('offline') ? (
+                        <ChevronUp className="h-3 w-3" />
+                      ) : (
+                        <ChevronDown className="h-3 w-3" />
+                      )}
+                    </Button>
                   </div>
-                )}
-              </div>
-            )}
-          </div>
-        )}
+                  {expandedSections.has('offline') && (
+                    <div className="space-y-2">
+                      {offlineMembers.map((member) => (
+                        <div
+                          key={member.id}
+                          className="flex items-center gap-2 p-2 rounded-lg hover:bg-muted/50 transition-colors opacity-75 group"
+                        >
+                          <div className="relative">
+                            <Avatar className="h-8 w-8">
+                              <AvatarFallback className="text-xs">
+                                {getInitials(member.info.name)}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-gray-400 rounded-full border-2 border-background" />
+                            {/* Activity Indicator for Offline Members */}
+                            {member.hasNewActivity && (
+                              <div className="absolute -top-1 -right-1 w-3 h-3 bg-blue-500 rounded-full border-2 border-background" />
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm font-medium truncate">
+                                {member.info.name}
+                              </span>
+                              {member.role === 'leader' && (
+                                <Crown className="h-3 w-3 text-yellow-500" />
+                              )}
+                            </div>
+                            <span className="text-xs text-muted-foreground">
+                              {formatTimestamp(member.status.lastLoggedIn) || '오프라인'}
+                            </span>
+                          </div>
+                          {/* Member Action Dropdown for Offline Members */}
+                          <div
+                            className="flex items-center gap-1 md:opacity-0 md:group-hover:opacity-100 transition-opacity relative"
+                            data-dropdown
+                          >
+                            <div className="relative">
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-6 w-6"
+                                onClick={() => toggleDropdown(member.id)}
+                              >
+                                <MoreVertical className="h-3 w-3" />
+                              </Button>
+                              {openDropdowns.has(member.id) && (
+                                <div className="absolute right-0 top-full mt-1 w-28 bg-white border border-gray-200 rounded-md shadow-lg z-[9999]">
+                                  <div className="py-1">
+                                    <button
+                                      className="flex items-center w-full px-3 py-1.5 text-xs hover:bg-gray-100"
+                                      onClick={() => {
+                                        handleMemberAction(member.id, 'transfer')
+                                        toggleDropdown(member.id)
+                                      }}
+                                    >
+                                      <Send className="mr-2 h-3 w-3" />
+                                      송금하기
+                                    </button>
+                                    <button
+                                      className="flex items-center w-full px-3 py-1.5 text-xs hover:bg-gray-100"
+                                      onClick={() => {
+                                        handleMemberAction(member.id, 'request')
+                                        toggleDropdown(member.id)
+                                      }}
+                                    >
+                                      <CreditCard className="mr-2 h-3 w-3" />
+                                      송금 요청
+                                    </button>
+                                    <button
+                                      className="flex items-center w-full px-3 py-1.5 text-xs hover:bg-gray-100"
+                                      onClick={() => {
+                                        handleMemberAction(member.id, 'chat')
+                                        toggleDropdown(member.id)
+                                      }}
+                                    >
+                                      <MessageCircle className="mr-2 h-3 w-3" />
+                                      메시지 보내기
+                                    </button>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
         </ScrollArea>
       </div>
 
