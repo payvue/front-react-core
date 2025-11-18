@@ -1,0 +1,13 @@
+<svg width="320" height="240" viewBox="0 0 320 240" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="gradientGeneric" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#EEF2FF" />
+      <stop offset="100%" stop-color="#C7D2FE" />
+    </linearGradient>
+  </defs>
+  <rect width="320" height="240" rx="24" fill="url(#gradientGeneric)" />
+  <g fill="#312E81" font-family="'Pretendard', 'Segoe UI', sans-serif" text-anchor="middle">
+    <text x="160" y="120" font-size="22" font-weight="600">PayEasy Store</text>
+    <text x="160" y="150" font-size="14" opacity="0.8">Curated Product</text>
+  </g>
+</svg>
