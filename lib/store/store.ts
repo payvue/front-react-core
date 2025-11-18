@@ -8,7 +8,7 @@ import rootReducer from './combine';
 const persistConfig = {
   key: 'root',
   storage,
-  whitelist: ['auth'],
+  whitelist: ['auth', 'smartStore', 'cart'],
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
