@@ -1,0 +1,7 @@
+export { ShoppingPageLayout } from './shopping-page-layout'
+export { ShoppingIntroSection } from './shopping-intro-section'
+export { ShoppingStatsSection } from './shopping-stats-section'
+export { ShoppingTabsSection } from './shopping-tabs-section'
+export { ProductsTab } from './tabs/products-tab'
+export { CartTab } from './tabs/cart-tab'
+export { MallsTab } from './tabs/malls-tab'
