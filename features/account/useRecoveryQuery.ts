@@ -1,20 +1,18 @@
-"use client"
+'use client'
 
-import { useMutation } from "@tanstack/react-query"
-import { Request } from "@/types"
-import APPLICATION_ERROR_CODE from "@/constants/error"
-import PATH from "@/constants/path"
-import { useRouter } from "next/navigation"
-import useAccountAPI from "./api"
-
+import { useMutation } from '@tanstack/react-query'
+import { Request } from '@/types'
+import APPLICATION_ERROR_CODE from '@/constants/error'
+import PATH from '@/constants/path'
+import { useRouter } from 'next/navigation'
+import useAccountAPI from './api'
 
 const useRecoveryQuery = () => {
-
   const router = useRouter()
-  const { findid: findidAPI, findpassword: findpasswordAPI } = useAccountAPI()
+  const { findid: findidAPI, resetPassword: resetPasswordAPI } = useAccountAPI()
 
   const { mutateAsync: findid } = useMutation({
-    mutationFn: (data: {alias: string, email: string}) => findidAPI(data),
+    mutationFn: (data: { email: string }) => findidAPI(data),
     onSuccess: ({ code, message }) => {
       router.push(`/result?action=아이디 찾기&code=${code}&message=${message}`)
     },
@@ -28,10 +26,10 @@ const useRecoveryQuery = () => {
     },
   })
 
-  const { mutateAsync: findpassword } = useMutation({
-    mutationFn: (data: { id: string, email: string}) => findpasswordAPI(data),
+  const { mutateAsync: resetPassword } = useMutation({
+    mutationFn: (data: { email: string; username: string }) => resetPasswordAPI(data),
     onSuccess: ({ code, message }) => {
-        router.push(`/result?action=비밀번호 찾기&code=${code}&message=${message}`)
+      router.push(`/result?action=비밀번호 재설정&code=${code}&message=${message}`)
     },
     onError: (error: Request.Error) => {
       if (
@@ -40,12 +38,12 @@ const useRecoveryQuery = () => {
       ) {
         router.push(`${PATH.ERROR}?code=${error.code}`)
       }
-    },    
-  })  
+    },
+  })
 
   return {
     findid,
-    findpassword
+    resetPassword,
   }
 }
 

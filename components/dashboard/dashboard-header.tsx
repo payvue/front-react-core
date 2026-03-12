@@ -8,27 +8,16 @@ import { Settings, LogOut, CreditCard, Package, BarChart3, Users, ShoppingBag } 
 import Link from 'next/link'
 import { useAppSelector } from '@/lib/redux/hooks'
 import { AvatarImage } from '@radix-ui/react-avatar'
-
-interface DashboardUser {
-  id: string
-  name: string
-  email: string
-  balance: number
-}
+import useAuthQuery from '@/features/auth/useAuthQuery'
+import { useRouter } from 'next/navigation'
 
 export function DashboardHeader() {
-  const [user, setUser] = useState<DashboardUser | null>(null)
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
-  const { account, info, asset } = useAppSelector((state) => state.auth.domain)
-
-  useEffect(() => {
-    const userData = localStorage.getItem('user')
-    if (userData) {
-      setUser(JSON.parse(userData))
-    }
-  }, [])
+  const { account, info } = useAppSelector((state) => state.auth.domain)
+  const { logout } = useAuthQuery()
+  const router = useRouter()
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -47,8 +36,9 @@ export function DashboardHeader() {
   }, [dropdownOpen])
 
   const handleLogout = () => {
-    localStorage.removeItem('user')
-    window.location.href = '/login'
+    logout().finally(() => {
+      router.push('/login')
+    })
   }
 
   return (
@@ -99,7 +89,7 @@ export function DashboardHeader() {
             >
               <Avatar className="h-8 w-10">
                 <AvatarImage src={info.avatar} alt={account?.alias ?? 'guest'} />
-                <AvatarFallback>{user?.name?.charAt(0) ?? 'U'}</AvatarFallback>
+                <AvatarFallback>{account?.alias?.charAt(0) ?? 'U'}</AvatarFallback>
               </Avatar>
               <span className="hidden md:inline">{account?.alias ?? '게스트'}</span>
             </Button>

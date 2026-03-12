@@ -28,16 +28,19 @@ export function PasswordChangeForm({ onSave, callback }: PasswordChangeFormProps
     }
   })
 
-  const handlePasswordSubmit = (data: PasswordFormData) => {
-    
-    onSave(data).then(() => {
+  const handlePasswordSubmit = async (data: PasswordFormData) => {
+    try {
+      await onSave(data)
       reset()
       setIsChangingPassword(false)
-      callback()
-    })
-    onSave(data)
-    reset()
-    setIsChangingPassword(false)
+      alert('비밀번호가 정상적으로 변경되었습니다.')
+      const confirmed = window.confirm('다시 로그인하시겠습니까?')
+      if (confirmed) {
+        callback()
+      }
+    } catch (error) {
+      alert('비밀번호 변경에 실패했습니다.')
+    }
   }
 
   const handleCancelPasswordChange = () => {

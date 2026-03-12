@@ -1,13 +1,22 @@
-"use client"
+'use client'
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Search, Send, Clock, CheckCircle } from "lucide-react"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useEffect, useMemo, useState } from 'react'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Search, Send } from 'lucide-react'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import {
+  useProfileSearch,
+  useCreateTransfer,
+  useTransferHistory,
+} from '@/features/transfer/useTransferQuery'
+import { useAppSelector } from '@/lib/redux/hooks'
+import { AssetTransactionsList } from '@/features/transaction/components/asset/asset-transactions-list'
+import { normalizeAssetTransactions } from '@/features/transaction/utils/asset-normalizer'
+import { assetTransactionBuilder } from '@/features/transaction/model/asset-builder'
 
 interface User {
   id: string
@@ -16,89 +25,67 @@ interface User {
   avatar?: string
 }
 
-interface TransferHistory {
-  id: string
-  recipient: User
-  amount: number
-  status: "completed" | "pending" | "failed"
-  date: string
-  message?: string
-}
-
 export function MoneyTransfer() {
-  const [searchQuery, setSearchQuery] = useState("")
+  const [searchQuery, setSearchQuery] = useState('')
+  const [debouncedQuery, setDebouncedQuery] = useState('')
   const [selectedUser, setSelectedUser] = useState<User | null>(null)
-  const [amount, setAmount] = useState("")
-  const [message, setMessage] = useState("")
+  const [amount, setAmount] = useState('')
+  const [message, setMessage] = useState('')
   const [isTransferring, setIsTransferring] = useState(false)
+  const { asset } = useAppSelector((state) => state.auth.domain)
 
-  // Mock data
-  const users: User[] = [
-    { id: "1", name: "김민수", email: "minsu@example.com", avatar: "/placeholder.svg?height=40&width=40" },
-    { id: "2", name: "이영희", email: "younghee@example.com", avatar: "/placeholder.svg?height=40&width=40" },
-    { id: "3", name: "박철수", email: "chulsoo@example.com", avatar: "/placeholder.svg?height=40&width=40" },
-  ]
+  // Transfer hooks
+  // Lazy search with debounce
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedQuery(searchQuery.trim()), 250)
+    return () => clearTimeout(t)
+  }, [searchQuery])
 
-  const transferHistory: TransferHistory[] = [
-    {
-      id: "1",
-      recipient: users[0],
-      amount: 50000,
-      status: "completed",
-      date: "2024-01-15",
-      message: "점심값 송금",
-    },
-    {
-      id: "2",
-      recipient: users[1],
-      amount: 30000,
-      status: "pending",
-      date: "2024-01-14",
-      message: "카페비 송금",
-    },
-  ]
+  const profileQuery = useProfileSearch(debouncedQuery)
+  const createTransfer = useCreateTransfer()
+  const historyQuery = useTransferHistory('cash', 'transfer')
 
-  const filteredUsers = users.filter(
-    (user) =>
-      user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchQuery.toLowerCase()),
-  )
+  const transferHistoryModels = useMemo(() => {
+    const normalized = normalizeAssetTransactions(historyQuery.data?.items ?? [])
+    return assetTransactionBuilder.buildList(normalized)
+  }, [historyQuery.data?.items])
+
+  // map profile query result into list for selection
+  const filteredUsers: User[] = profileQuery.data
+    ? [
+        {
+          id: profileQuery.data.id,
+          name: profileQuery.data.name,
+          email: profileQuery.data.email,
+          avatar: profileQuery.data.avatar,
+        },
+      ]
+    : []
 
   const handleTransfer = async () => {
     if (!selectedUser || !amount) return
 
-    setIsTransferring(true)
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 2000))
+    try {
+      setIsTransferring(true)
+      await createTransfer.mutateAsync({
+        recipientId: selectedUser.email,
+        recipientType: 'USER',
+        amount: Number.parseInt(amount, 10),
+        message,
+      })
 
-    alert(`${selectedUser.name}님에게 ₩${Number.parseInt(amount).toLocaleString()}을 송금했습니다.`)
+      alert(
+        `${selectedUser.name}님에게 ₩${Number.parseInt(amount).toLocaleString()}을 송금했습니다.`,
+      )
 
-    // Reset form
-    setSelectedUser(null)
-    setAmount("")
-    setMessage("")
-    setIsTransferring(false)
-  }
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case "completed":
-        return <CheckCircle className="h-4 w-4 text-green-500" />
-      case "pending":
-        return <Clock className="h-4 w-4 text-yellow-500" />
-      default:
-        return <Clock className="h-4 w-4 text-red-500" />
-    }
-  }
-
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case "completed":
-        return "완료"
-      case "pending":
-        return "대기중"
-      default:
-        return "실패"
+      // Reset form
+      setSelectedUser(null)
+      setAmount('')
+      setMessage('')
+    } catch (err: any) {
+      alert(err?.message || '송금에 실패했습니다')
+    } finally {
+      setIsTransferring(false)
     }
   }
 
@@ -117,7 +104,9 @@ export function MoneyTransfer() {
                 <Send className="h-5 w-5" />
                 온라인 재화 송금
               </CardTitle>
-              <CardDescription>다른 사용자에게 보유중인 온라인 재화를 송금할 수 있습니다</CardDescription>
+              <CardDescription>
+                다른 사용자에게 보유중인 온라인 재화를 송금할 수 있습니다
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               {/* User Search */}
@@ -141,13 +130,13 @@ export function MoneyTransfer() {
                         key={user.id}
                         className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${
                           selectedUser?.id === user.id
-                            ? "border-primary bg-primary/5"
-                            : "border-border hover:bg-muted/50"
+                            ? 'border-primary bg-primary/5'
+                            : 'border-border hover:bg-muted/50'
                         }`}
                         onClick={() => setSelectedUser(user)}
                       >
                         <Avatar className="h-10 w-10">
-                          <AvatarImage src={user.avatar || "/placeholder.svg"} alt={user.name} />
+                          <AvatarImage src={user.avatar || '/placeholder.svg'} alt={user.name} />
                           <AvatarFallback>{user.name[0]}</AvatarFallback>
                         </Avatar>
                         <div>
@@ -166,7 +155,10 @@ export function MoneyTransfer() {
                   <p className="text-sm text-muted-foreground mb-2">선택된 받는 사람</p>
                   <div className="flex items-center gap-3">
                     <Avatar className="h-10 w-10">
-                      <AvatarImage src={selectedUser.avatar || "/placeholder.svg"} alt={selectedUser.name} />
+                      <AvatarImage
+                        src={selectedUser.avatar || '/placeholder.svg'}
+                        alt={selectedUser.name}
+                      />
                       <AvatarFallback>{selectedUser.name[0]}</AvatarFallback>
                     </Avatar>
                     <div>
@@ -187,7 +179,9 @@ export function MoneyTransfer() {
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
                 />
-                <p className="text-sm text-muted-foreground">보유 잔액: ₩150,000</p>
+                <p className="text-sm text-muted-foreground">
+                  보유 잔액: ₩{asset.balance.toLocaleString()}
+                </p>
               </div>
 
               {/* Message Input */}
@@ -208,7 +202,9 @@ export function MoneyTransfer() {
                 className="w-full"
                 size="lg"
               >
-                {isTransferring ? "송금 중..." : `₩${amount ? Number.parseInt(amount).toLocaleString() : 0} 송금하기`}
+                {isTransferring
+                  ? '송금 중...'
+                  : `₩${amount ? Number.parseInt(amount).toLocaleString() : 0} 송금하기`}
               </Button>
             </CardContent>
           </Card>
@@ -221,33 +217,11 @@ export function MoneyTransfer() {
               <CardDescription>최근 송금 내역을 확인할 수 있습니다</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {transferHistory.map((transfer) => (
-                  <div key={transfer.id} className="flex items-center justify-between p-4 border rounded-lg">
-                    <div className="flex items-center gap-3">
-                      <Avatar className="h-10 w-10">
-                        <AvatarImage
-                          src={transfer.recipient.avatar || "/placeholder.svg"}
-                          alt={transfer.recipient.name}
-                        />
-                        <AvatarFallback>{transfer.recipient.name[0]}</AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <p className="font-medium">{transfer.recipient.name}</p>
-                        <p className="text-sm text-muted-foreground">{transfer.message}</p>
-                        <p className="text-xs text-muted-foreground">{transfer.date}</p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-medium">-₩{transfer.amount.toLocaleString()}</p>
-                      <div className="flex items-center gap-1 justify-end">
-                        {getStatusIcon(transfer.status)}
-                        <span className="text-sm">{getStatusText(transfer.status)}</span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <AssetTransactionsList
+                items={transferHistoryModels}
+                isLoading={historyQuery.isLoading}
+                onSelect={() => {}}
+              />
             </CardContent>
           </Card>
         </TabsContent>

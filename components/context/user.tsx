@@ -1,12 +1,12 @@
-"use client"
+'use client'
 
-import { User } from "@/types";
-import { useQueryClient } from "@tanstack/react-query";
-import { createContext, ReactNode, useContext, useEffect } from "react";
-import isExpired from '../../util/jwt';
-import { authenticated, unauthenticated } from "@/features/auth";
-import { useAppDispatch, useAppSelector } from "@/lib/redux/hooks";
-import useAsyncAccountQuery from "@/features/account/useAsyncAccountQuery";
+import { User } from '@/types'
+import { useQueryClient } from '@tanstack/react-query'
+import { createContext, ReactNode, useContext, useEffect } from 'react'
+import isExpired from '../../util/jwt'
+import { authenticated, unauthenticated } from '@/features/auth'
+import { useAppDispatch, useAppSelector } from '@/lib/redux/hooks'
+import useAsyncAccountQuery from '@/features/account/useAsyncAccountQuery'
 
 interface UserContextType {
   authorized: (token: string) => void
@@ -14,11 +14,10 @@ interface UserContextType {
   isAuthenticated: () => boolean
 }
 
-const UserContext = createContext<UserContextType | undefined>(undefined);
-export const QUERY_USER_KEY = ["user"]
+const UserContext = createContext<UserContextType | undefined>(undefined)
+export const QUERY_USER_KEY = ['user']
 
 const UserProvider = ({ children }: { children: ReactNode }) => {
-
   const user: User.Context = useAppSelector((state) => state.auth.domain)
 
   const queryClient = useQueryClient()
@@ -27,15 +26,17 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     if (user) {
-      const cachedData = queryClient.getQueryData<User.Context>(QUERY_USER_KEY);
+      const cachedData = queryClient.getQueryData<User.Context>(QUERY_USER_KEY)
       if (JSON.stringify(cachedData) !== JSON.stringify(user)) {
-        queryClient.setQueryData(QUERY_USER_KEY, user);
+        queryClient.setQueryData(QUERY_USER_KEY, user)
       }
     }
-  }, [user])
+  }, [user, queryClient])
 
-  useEffect(() => { fetch() } , [])
-  
+  useEffect(() => {
+    fetch()
+  }, [fetch])
+
   const authorized = (token: string) => {
     dispatch(authenticated(token))
   }
@@ -45,7 +46,13 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
   }
 
   const isAuthenticated = () => {
-    return (user.account.status.isLoggedIn && !isExpired(user.account.token))
+    if (!user.account.status.isLoggedIn) return false
+
+    if (!user.account.token) {
+      return true
+    }
+
+    return !isExpired(user.account.token)
   }
 
   return (

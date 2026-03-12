@@ -4,22 +4,21 @@ import request from '@/lib/api/client'
 import APIResponse from '@/lib/api/types/response'
 import { HistoryTransactionSchema } from '../types'
 import { normalizeHistoryTransactions } from '../utils/history-normalizer'
+import { REQUEST_URL } from '@/constants'
 
-const TRANSACTION_HISTORY_ENDPOINT = '/transaction/history'
 export const TRANSACTION_HISTORY_QUERY_KEY = ['transaction', 'history'] as const
 
 export interface TransactionHistoryParams {
   count?: number
 }
 
-const fetchTransactionHistory = async (params: TransactionHistoryParams) => {
+const fetchTransactionHistory = async (_params: TransactionHistoryParams) => {
   const response = (await request({
     method: 'GET' as Method,
-    url: TRANSACTION_HISTORY_ENDPOINT,
-    params,
-  })) as APIResponse<HistoryTransactionSchema[]>
+    url: REQUEST_URL.PRIVATE.TRANSACTION_PERSONAL_RECENT,
+  })) as APIResponse<{ items?: HistoryTransactionSchema[] }>
 
-  return normalizeHistoryTransactions(response.data)
+  return normalizeHistoryTransactions(response.data?.items ?? [])
 }
 
 export const useTransactionHistoryQuery = (

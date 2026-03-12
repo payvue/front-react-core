@@ -5,7 +5,7 @@ import APIResponse from '@/lib/api/types/response'
 import { HistoryTransactionSchema } from '../types'
 import { normalizeHistoryTransactions } from '../utils/history-normalizer'
 
-const TRANSACTION_HISTORY_ENDPOINT = '/transaction/history'
+const TRANSACTION_HISTORY_ENDPOINT = '/transaction/query/history'
 
 export interface InfiniteTransactionHistoryParams {
   pageSize?: number
@@ -19,12 +19,12 @@ const fetchTransactionHistoryPage = async (
     method: 'GET' as Method,
     url: TRANSACTION_HISTORY_ENDPOINT,
     params: {
-      page,
+      count: page,
       limit: pageSize,
     },
-  })) as APIResponse<HistoryTransactionSchema[]>
+  })) as APIResponse<{ items?: HistoryTransactionSchema[] }>
 
-  return normalizeHistoryTransactions(response.data)
+  return normalizeHistoryTransactions(response.data?.items ?? [])
 }
 
 export const useInfiniteTransactionHistoryQuery = (

@@ -11,6 +11,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Group } from "@/types"
 import { formatCurrency } from "@/util/display"
 import { InviteFollower } from "./invite"
+import { isLeaderRole } from "@/features/community/utils/role"
 
 interface GroupDetailProps {
   group: Group.Context,
@@ -37,7 +38,10 @@ export function GroupMembers({ group, participant }: GroupDetailProps) {
             <DialogHeader>
               <DialogTitle>새 멤버 초대</DialogTitle>
             </DialogHeader>
-            <InviteFollower></InviteFollower>
+            <InviteFollower
+              groupId={group.id}
+              onInviteSuccess={() => setIsInviteDialogOpen(false)}
+            ></InviteFollower>
           </DialogContent>
         </Dialog>
       </CardHeader>
@@ -52,7 +56,7 @@ export function GroupMembers({ group, participant }: GroupDetailProps) {
                 <div>
                   <div className="flex items-center gap-2">
                     <p className="font-medium">{member.info.name}</p>
-                    {member.role === "leader" && <Crown className="h-4 w-4 text-yellow-500" />}
+                    {isLeaderRole(member.role) && <Crown className="h-4 w-4 text-yellow-500" />}
                     <Badge variant={member.status.isLoggedIn ? "secondary" : "outline"}>
                       {member.policy.active ? "활성" : "비활성"}
                     </Badge>

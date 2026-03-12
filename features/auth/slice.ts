@@ -1,46 +1,44 @@
-import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
-import { fetchUserInfo } from '@/features/auth';
-import { DomainState, User } from "@/types";
-import { setLocalStorageItem } from "@/util/localStorage";
-import { LOCAL_STORAGE_KEY } from "@/constants";
+import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
+import { fetchUserInfo } from '@/features/auth'
+import { DomainState, User } from '@/types'
 
-const initial :DomainState<User.Context> = {
-    domain: {
-      account: {
-        alias: "guest",
-        id: "",
-        token: "",
-        status: {
-          isLoggedIn: false,
-          lastLoggedIn: "",
-          joinAt: ""
-        },
-      },    
-      info: {
-        name: "",
-        resident: "",
-        address: {
-          city: "",
-          district: "",
-          street: "",
-          postCode: "",
-          detailed: "",
-        },
-        contact: {
-          email: "",
-          phone: "",
-        },
-        birth: "",
-        provider: "",
-        avatar: "",
+const initial: DomainState<User.Context> = {
+  domain: {
+    account: {
+      alias: 'guest',
+      id: '',
+      token: '',
+      status: {
+        isLoggedIn: false,
+        lastLoggedIn: '',
+        joinAt: '',
       },
-      asset: {
-        balance: 0,
-        point: 0,
-      }
     },
-    loading: false,
-    error: null    
+    info: {
+      name: '',
+      resident: '',
+      address: {
+        city: '',
+        district: '',
+        street: '',
+        postCode: '',
+        detailed: '',
+      },
+      contact: {
+        email: '',
+        phone: '',
+      },
+      birth: '',
+      provider: '',
+      avatar: '',
+    },
+    asset: {
+      balance: 0,
+      point: 0,
+    },
+  },
+  loading: false,
+  error: null,
 }
 
 const authSlice = createSlice({
@@ -48,9 +46,8 @@ const authSlice = createSlice({
   initialState: initial,
   reducers: {
     authenticated: (state, action: PayloadAction<string>) => {
-      state.domain.account.token = action.payload
+      state.domain.account.token = action.payload === 'cookie' ? '' : action.payload
       state.domain.account.status.isLoggedIn = true
-      setLocalStorageItem(LOCAL_STORAGE_KEY.ACCESS_TOKEN, state.domain.account.token)
     },
     unauthenticated: (state) => initial,
   },
@@ -75,14 +72,14 @@ const authSlice = createSlice({
       })
       .addCase(fetchUserInfo.rejected, (state, action) => {
         state.loading = false
-        state.error = action.error.message || "Failed to fetch user info"
+        state.error = action.error.message || 'Failed to fetch user info'
       })
-  }
-});
+  },
+})
 
-export const { 
-  authenticated,  
+export const {
+  authenticated,
   unauthenticated,
-} = authSlice.actions;
+} = authSlice.actions
 
-export default authSlice.reducer;
+export default authSlice.reducer

@@ -22,6 +22,7 @@ import { formatCurrency, formatTimestamp } from '@/util/display'
 import { Alarm } from '@/types'
 import { useAlarmContext } from '../context/alarm'
 import { GroupAlarmsSidebar } from './group-alarm-sidebar'
+import { isLeaderRole } from '@/features/community/utils/role'
 import { Avatar, AvatarFallback } from '@radix-ui/react-avatar'
 import { Separator } from '@radix-ui/react-select'
 
@@ -33,6 +34,8 @@ export function GroupMembersSidebar({ onCollapseChange }: GroupMembersSidebarPro
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [isAnimatingOut, setIsAnimatingOut] = useState(false)
   const [selectedGroup, setSelectedGroup] = useState<string>('1')
+  const [isGroupListOpen, setIsGroupListOpen] = useState(true)
+  const [isMembersOpen, setIsMembersOpen] = useState(true)
 
   const [openDropdowns, setOpenDropdowns] = useState<Set<string>>(new Set())
   const [expandedSections, setExpandedSections] = useState<Set<string>>(
@@ -173,26 +176,52 @@ export function GroupMembersSidebar({ onCollapseChange }: GroupMembersSidebarPro
 
         {/* Group Selector */}
         <div className="space-y-2">
-          {Array.from(groups).map((group) => (
-            <Button
-              key={group.id}
-              variant={selectedGroup === group.id ? 'default' : 'ghost'}
-              size="sm"
-              className="w-full justify-start text-left"
-              onClick={() => setSelectedGroup(group.id)}
-            >
-              <div className="flex-1 min-w-0">
-                <div className="font-medium truncate">{group.name}</div>
-                <div className="text-xs text-muted-foreground">
-                  {formatCurrency(group.shared.balance)}
+          <button
+            type="button"
+            className="flex w-full items-center justify-between text-xs font-medium text-muted-foreground"
+            onClick={() => setIsGroupListOpen((prev) => !prev)}
+          >
+            <span>내 그룹 ({Array.from(groups).length})</span>
+            {isGroupListOpen ? (
+              <ChevronUp className="h-3 w-3" />
+            ) : (
+              <ChevronDown className="h-3 w-3" />
+            )}
+          </button>
+
+          {isGroupListOpen
+            ? Array.from(groups).map((group) => (
+                <Button
+                  key={group.id}
+                  variant={selectedGroup === group.id ? 'default' : 'ghost'}
+                  size="sm"
+                  className="w-full justify-start text-left"
+                  onClick={() => setSelectedGroup(group.id)}
+                >
+                  <div className="flex-1 min-w-0">
+                    <div className="font-medium truncate">{group.name}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {formatCurrency(group.shared.balance)}
+                    </div>
+                  </div>
+                  <Badge variant="secondary" className="ml-2">
+                    {group.members.length}
+                  </Badge>
+                </Button>
+              ))
+            : currentGroup && (
+                <div className="rounded-md border border-border bg-muted/30 px-3 py-2 text-xs">
+                  <div className="flex items-center justify-between">
+                    <span className="font-medium truncate">{currentGroup.name}</span>
+                    <Badge variant="secondary">{currentGroup.members.length}</Badge>
+                  </div>
+                  <div className="text-muted-foreground mt-1">
+                    {formatCurrency(currentGroup.shared.balance)}
+                  </div>
                 </div>
-              </div>
-              <Badge variant="secondary" className="ml-2">
-                {group.members.length}
-              </Badge>
-            </Button>
-          ))}
+              )}
         </div>
+
       </div>
 
       {/* 알림 토글 */}
@@ -203,8 +232,27 @@ export function GroupMembersSidebar({ onCollapseChange }: GroupMembersSidebarPro
         <ScrollArea className="h-full p-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
           {currentGroup && (
             <div className="space-y-4 pr-2">
+              <button
+                type="button"
+                className="flex w-full items-center justify-between text-xs font-medium text-muted-foreground"
+                onClick={() => setIsMembersOpen((prev) => !prev)}
+              >
+                <span>멤버 ({currentGroup.members.length})</span>
+                {isMembersOpen ? (
+                  <ChevronUp className="h-3 w-3" />
+                ) : (
+                  <ChevronDown className="h-3 w-3" />
+                )}
+              </button>
+
+              {!isMembersOpen && (
+                <div className="rounded-md border border-border bg-muted/30 px-3 py-2 text-xs text-muted-foreground">
+                  온라인 {onlineMembers.length}명 · 오프라인 {offlineMembers.length}명
+                </div>
+              )}
+
               {/* Online Members */}
-              {onlineMembers.length > 0 && (
+              {isMembersOpen && onlineMembers.length > 0 && (
                 <div>
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
@@ -250,7 +298,7 @@ export function GroupMembersSidebar({ onCollapseChange }: GroupMembersSidebarPro
                               <span className="text-sm font-medium truncate">
                                 {member.info.name}
                               </span>
-                              {member.role === 'leader' && (
+                              {isLeaderRole(member.role) && (
                                 <Crown className="h-3 w-3 text-yellow-500" />
                               )}
                             </div>
@@ -324,10 +372,12 @@ export function GroupMembersSidebar({ onCollapseChange }: GroupMembersSidebarPro
               )}
 
               {/* Separator */}
-              {onlineMembers.length > 0 && offlineMembers.length > 0 && <Separator />}
+              {isMembersOpen && onlineMembers.length > 0 && offlineMembers.length > 0 && (
+                <Separator />
+              )}
 
               {/* Offline Members */}
-              {offlineMembers.length > 0 && (
+              {isMembersOpen && offlineMembers.length > 0 && (
                 <div>
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
@@ -373,7 +423,7 @@ export function GroupMembersSidebar({ onCollapseChange }: GroupMembersSidebarPro
                               <span className="text-sm font-medium truncate">
                                 {member.info.name}
                               </span>
-                              {member.role === 'leader' && (
+                              {isLeaderRole(member.role) && (
                                 <Crown className="h-3 w-3 text-yellow-500" />
                               )}
                             </div>

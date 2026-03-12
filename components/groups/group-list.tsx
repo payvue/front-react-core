@@ -9,6 +9,7 @@ import Link from "next/link"
 import { useAppSelector } from "@/lib/redux/hooks"
 import { Group } from "@/types"
 import { formatCurrency } from "@/util/display"
+import { isLeaderRole } from "@/features/community/utils/role"
 
 
 export function GroupList() {
@@ -17,7 +18,7 @@ export function GroupList() {
   const { groups } = useAppSelector((state) => state.community.domain)
   const leaderGroups = new Set<string>(
     groups.flatMap(group =>
-      group.members.some(m => info.name === m.info.name && m.role === 'leader') ? [group.id] : []
+      group.members.some(m => info.name === m.info.name && isLeaderRole(m.role)) ? [group.id] : []
     )
   );
 

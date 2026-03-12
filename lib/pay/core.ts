@@ -1,7 +1,14 @@
 
 
 export interface PayCore {
-  reserve: (url: string, onClose?: () => void) => void
+  reserve: (
+    url: string,
+    onClose?: () => void,
+    popupOptions?: {
+      width?: number
+      height?: number
+    }
+  ) => void
   startProcessing: () => void
   finishProcessing: () => void
   waitUntilFinished: () => Promise<void>
@@ -40,8 +47,21 @@ export const payCore = (): PayCore => {
     })
   }
 
-  const reserve = (url: string, onClose?: () => void) => {
-    const win = window.open(url, "_blank", "width=1000,height=600,left=200,top=200")
+  const reserve = (
+    url: string,
+    onClose?: () => void,
+    popupOptions?: {
+      width?: number
+      height?: number
+    }
+  ) => {
+    const width = popupOptions?.width ?? 1000
+    const height = popupOptions?.height ?? 600
+    const left = Math.max(0, Math.floor((window.screen.width - width) / 2))
+    const top = Math.max(0, Math.floor((window.screen.height - height) / 2))
+    const features = `width=${width},height=${height},left=${left},top=${top}`
+
+    const win = window.open(url, "_blank", features)
 
     if (!win) {
       finishProcessing()

@@ -1,14 +1,18 @@
-import { Address } from "@/types"
-
 export interface RegisterRequest {
   alias: string
-  id: string
-  password: string
-  confirmPassword: string
+  username: string
   name: string
-  resident: string
-  birth: string
+  residentRegistrationNo: string
+  birthYear: number
+  birthMonth: number
+  birthDay: number
   email: string
   phone: string
-  address: Address
+  password: string
+  passwordConfirm: string
+  sido: string
+  sigungu: string
+  roadAddress: string
+  postalCode: string
+  detailAddress: string
 }

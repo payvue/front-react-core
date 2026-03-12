@@ -54,6 +54,7 @@ class PaymentMethodModel implements PaymentMethodSchema {
       case "card":
       case "bank":
       case "mobile":
+      case "wallet":
         return normalized
       default:
         return "card"

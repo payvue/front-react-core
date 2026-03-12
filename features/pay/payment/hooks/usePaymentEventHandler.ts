@@ -7,7 +7,7 @@ interface PaymentEventHandlerProps {
 const usePaymentEventHandler = ({ onPaymentClosed }: PaymentEventHandlerProps) => {
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
-      if (event.data === "PAYMENT_CLOSED") {
+      if (event.data === "PAYMENT_CLOSED" || event.data?.type === 'payment:success') {
         onPaymentClosed?.()
       }
     }

@@ -5,6 +5,7 @@ import { useUserContext } from "./user"
 import { useAsyncCommunityQuery } from "@/features/community/useAsyncCommunityQuery"
 import { Community } from "@/types"
 import { useAppSelector } from "@/lib/redux/hooks"
+import { COMMUNITY_REFRESH_EVENT } from "@/features/community/utils/sync"
 
 
 interface CommunityContextType {
@@ -23,10 +24,26 @@ const CommunityProvider = ({ children }: { children: ReactNode }) => {
     const { isAuthenticated } = useUserContext()
     const { fetch } = useAsyncCommunityQuery(() => isAuthenticated, { isLoggedIn: user.account.status.isLoggedIn, hasIssue: community.hasIssue })
 
-    useEffect(() => { fetch() }, []);
+    useEffect(() => {
+        if (!user.account.status.isLoggedIn) {
+            return
+        }
+        fetch()
+    }, [fetch, user.account.status.isLoggedIn]);
+
+    useEffect(() => {
+        const onRefresh = () => {
+            fetch()
+        }
+
+        window.addEventListener(COMMUNITY_REFRESH_EVENT, onRefresh)
+        return () => {
+            window.removeEventListener(COMMUNITY_REFRESH_EVENT, onRefresh)
+        }
+    }, [fetch])
 
     const newIssued = () => {
-
+        fetch()
     }
 
     const participated = () => {

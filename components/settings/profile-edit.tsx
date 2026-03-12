@@ -4,12 +4,12 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { User, Calendar, Edit2, Save, X } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Controller, useForm } from "react-hook-form"
 
 type ProfileFormData = {
-  email: string
-  alias: string
+  name: string
+  contact: string
 }
 
 type ProfileEditFormProps = {
@@ -22,8 +22,10 @@ type ProfileEditFormProps = {
     }
   }
   info: {
+    name: string
     contact: {
       email: string
+      phone: string
     }
   }
   onSave: (data: ProfileFormData) => Promise<void>
@@ -35,10 +37,17 @@ export function ProfileEditForm({ account, info, onSave, callback }: ProfileEdit
 
   const { control, handleSubmit, reset, formState: { errors } } = useForm<ProfileFormData>({
     defaultValues: {
-      email: info.contact.email,
-      alias: account.alias,
+      name: info.name,
+      contact: info.contact.phone,
     }
   })
+
+  useEffect(() => {
+    reset({
+      name: info.name,
+      contact: info.contact.phone,
+    })
+  }, [info.name, info.contact.phone, reset])
 
   const handleSaveProfile = (data: ProfileFormData) => {
     onSave(data).then(() => {
@@ -49,8 +58,8 @@ export function ProfileEditForm({ account, info, onSave, callback }: ProfileEdit
 
   const handleCancelEdit = () => {
     reset({
-      email: info.contact.email,
-      alias: account.alias,
+      name: info.name,
+      contact: info.contact.phone,
     })
     setIsEditing(false)
   }
@@ -84,57 +93,52 @@ export function ProfileEditForm({ account, info, onSave, callback }: ProfileEdit
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="nickname">닉네임</Label>
+              <Label htmlFor="name">이름</Label>
               {isEditing ? (
                 <Controller
-                  name="alias"
-                  control={control}
-                  rules={{ required: "닉네임은 필수입니다" }}
-                  render={({ field }) => (
-                    <div>
-                      <Input
-                        id="nickname"
-                        {...field}
-                      />
-                      {errors.alias && (
-                        <p className="text-sm text-red-500 mt-1">{errors.alias.message}</p>
-                      )}
-                    </div>
-                  )}
-                />
-              ) : (
-                <Input value={account.alias} disabled />
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="email">이메일</Label>
-              {isEditing ? (
-                <Controller
-                  name="email"
+                  name="name"
                   control={control}
                   rules={{
-                    required: "이메일은 필수입니다",
-                    pattern: {
-                      value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                      message: "올바른 이메일 형식이 아닙니다"
-                    }
+                    required: "이름은 필수입니다",
                   }}
                   render={({ field }) => (
                     <div>
                       <Input
-                        id="email"
-                        type="email"
+                        id="name"
                         {...field}
                       />
-                      {errors.email && (
-                        <p className="text-sm text-red-500 mt-1">{errors.email.message}</p>
+                      {errors.name && (
+                        <p className="text-sm text-red-500 mt-1">{errors.name.message}</p>
                       )}
                     </div>
                   )}
                 />
               ) : (
-                <Input value={info.contact.email} disabled />
+                <Input value={info.name} disabled />
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="contact">연락처</Label>
+              {isEditing ? (
+                <Controller
+                  name="contact"
+                  control={control}
+                  rules={{ required: "연락처는 필수입니다" }}
+                  render={({ field }) => (
+                    <div>
+                      <Input
+                        id="contact"
+                        {...field}
+                      />
+                      {errors.contact && (
+                        <p className="text-sm text-red-500 mt-1">{errors.contact.message}</p>
+                      )}
+                    </div>
+                  )}
+                />
+              ) : (
+                <Input value={info.contact.phone} disabled />
               )}
             </div>
 

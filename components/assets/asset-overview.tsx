@@ -1,38 +1,15 @@
 "use client"
 
-import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { TrendingUp, TrendingDown, DollarSign, Package, Gift } from "lucide-react"
-
-interface AssetSummary {
-  totalValue: number
-  personalAssets: number
-  sharedAssets: number
-  monthlyChange: number
-  categoryBreakdown: {
-    game: number
-    music: number
-    gift: number
-    shopping: number
-  }
-}
-
-const mockAssetSummary: AssetSummary = {
-  totalValue: 450000,
-  personalAssets: 280000,
-  sharedAssets: 170000,
-  monthlyChange: 12.5,
-  categoryBreakdown: {
-    game: 150000,
-    music: 80000,
-    gift: 120000,
-    shopping: 100000,
-  },
-}
+import { useOnlineAssetsQuery } from "@/features/asset/summary/hooks/useOnlineAssetsQuery"
+import { useAppSelector } from "@/lib/redux/hooks"
+import { selectAssetOverview } from "@/features/asset/store/selectors"
 
 export function AssetOverview() {
-  const [assetSummary] = useState(mockAssetSummary)
+  const { isLoading, isError } = useOnlineAssetsQuery()
+  const assetSummary = useAppSelector(selectAssetOverview)
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("ko-KR", {
@@ -51,6 +28,10 @@ export function AssetOverview() {
         return "🎁"
       case "shopping":
         return "🛒"
+      case "cash":
+        return "💰"
+      case "mileage":
+        return "🧾"
       default:
         return "📦"
     }
@@ -66,9 +47,37 @@ export function AssetOverview() {
         return "기프트카드"
       case "shopping":
         return "쇼핑"
+      case "cash":
+        return "캐시"
+      case "mileage":
+        return "마일리지"
       default:
         return "기타"
     }
+  }
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <Card>
+          <CardContent className="py-10 text-center text-sm text-muted-foreground">
+            자산 요약을 불러오는 중입니다
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
+  if (isError) {
+    return (
+      <div className="space-y-6">
+        <Card>
+          <CardContent className="py-10 text-center text-sm text-destructive">
+            자산 요약을 불러오지 못했습니다
+          </CardContent>
+        </Card>
+      </div>
+    )
   }
 
   return (
@@ -86,7 +95,7 @@ export function AssetOverview() {
             {assetSummary.monthlyChange > 0 ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
             <span>
               {assetSummary.monthlyChange > 0 ? "+" : ""}
-              {assetSummary.monthlyChange}% 전월 대비
+              {formatCurrency(assetSummary.monthlyChange)} 전월 대비
             </span>
           </div>
         </CardContent>
@@ -107,14 +116,20 @@ export function AssetOverview() {
                 <span>개인 자산</span>
                 <span>{formatCurrency(assetSummary.personalAssets)}</span>
               </div>
-              <Progress value={(assetSummary.personalAssets / assetSummary.totalValue) * 100} className="h-2" />
+              <Progress
+                value={assetSummary.totalValue > 0 ? (assetSummary.personalAssets / assetSummary.totalValue) * 100 : 0}
+                className="h-2"
+              />
             </div>
             <div>
               <div className="flex justify-between text-sm mb-2">
                 <span>공유 자산</span>
                 <span>{formatCurrency(assetSummary.sharedAssets)}</span>
               </div>
-              <Progress value={(assetSummary.sharedAssets / assetSummary.totalValue) * 100} className="h-2" />
+              <Progress
+                value={assetSummary.totalValue > 0 ? (assetSummary.sharedAssets / assetSummary.totalValue) * 100 : 0}
+                className="h-2"
+              />
             </div>
           </CardContent>
         </Card>
@@ -136,7 +151,7 @@ export function AssetOverview() {
                 <div className="text-right">
                   <div className="text-sm font-medium">{formatCurrency(amount)}</div>
                   <div className="text-xs text-muted-foreground">
-                    {((amount / assetSummary.totalValue) * 100).toFixed(1)}%
+                    {assetSummary.totalValue > 0 ? ((amount / assetSummary.totalValue) * 100).toFixed(1) : '0.0'}%
                   </div>
                 </div>
               </div>

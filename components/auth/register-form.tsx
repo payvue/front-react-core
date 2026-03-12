@@ -14,21 +14,66 @@ import useAccountQuery from "@/features/account/useAccountQuery"
 import { useRouter } from "next/navigation"
 import APIResponse from "@/lib/api/types/response"
 
+interface RegisterFormValues {
+  alias: string
+  id: string
+  password: string
+  confirmPassword: string
+  name: string
+  resident: string
+  birth: string
+  email: string
+  phone: string
+  address: {
+    city: string
+    district: string
+    street: string
+    postCode: string
+    detailed: string
+  }
+}
+
 export function RegisterForm() {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [maskedResident, setMaskedResident] = useState("")
 
-  const {handleSubmit, control, watch, formState: { errors }} = useForm<RegisterRequest>({mode: "onSubmit"})
+  const {handleSubmit, control, watch, formState: { errors }} = useForm<RegisterFormValues>({mode: "onSubmit"})
   const selectedCity = watch("address.city")
 
   const { signup } = useAccountQuery()
 
-  const onSubmit = async (data: RegisterRequest) => {
+  const onSubmit = async (data: RegisterFormValues) => {
       setIsLoading(true)
-      signup(data).then(() => {
+      const [birthYear, birthMonth, birthDay] = data.birth
+        .split("-")
+        .map((value) => Number(value))
+
+      const payload: RegisterRequest = {
+        alias: data.alias,
+        username: data.id,
+        name: data.name,
+        residentRegistrationNo: data.resident,
+        birthYear: birthYear || 0,
+        birthMonth: birthMonth || 0,
+        birthDay: birthDay || 0,
+        email: data.email,
+        phone: data.phone,
+        password: data.password,
+        passwordConfirm: data.confirmPassword,
+        sido: data.address.city,
+        sigungu: data.address.district,
+        roadAddress: data.address.street,
+        postalCode: data.address.postCode,
+        detailAddress: data.address.detailed,
+      }
+
+      signup(payload).then(() => {
         setIsLoading(false)  
+      }).catch((error: Error) => {
+        setIsLoading(false)
+        alert(error.message || "이미 등록된 사용자입니다. 다른 정보로 다시 시도해주세요.")
       })
   }
 

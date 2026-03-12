@@ -12,21 +12,32 @@ export class GroupTransactionModelBuilder
 
   buildDetail(item: GroupTransactionSchema): TransactionModel {
     const details: GroupTransactionDetails = item.details ?? { paidBy: '' }
+    const occurredAt = this.resolveOccurredAt(item.occurredAt)
+    const displayDate = new Date(occurredAt).toLocaleDateString('ko-KR')
+    const paidBy = details.paidBy?.trim()
+    const showPaidBy = Boolean(paidBy) && item.kind !== 'acquire'
 
     return {
       id: item.id,
-      title: item.description,
-      subtitle: `${details.paidBy} · ${new Date(item.occurredAt).toLocaleDateString('ko-KR')}`,
+      title: item.description || '-',
+      subtitle: showPaidBy ? `${paidBy} · ${displayDate}` : displayDate,
       amount: item.amount,
       status: item.status,
-      occurredAt: item.occurredAt,
+      occurredAt,
       metadata: {
-        결제자: details.paidBy,
+        결제자: showPaidBy ? paidBy : '-',
         카테고리: details.categoryLabel ?? item.category ?? '-',
       },
       category: details.categoryLabel ?? item.category,
       kind: item.kind,
     }
+  }
+
+  private resolveOccurredAt(value?: string) {
+    if (!value) return new Date().toISOString()
+    const date = new Date(value)
+    if (Number.isNaN(date.getTime())) return new Date().toISOString()
+    return value
   }
 }
 

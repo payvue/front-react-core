@@ -14,13 +14,17 @@ import { useAppSelector } from "@/lib/redux/hooks"
 import { Group, User } from "@/types"
 import { formatCurrency } from "@/util/display"
 import useCommunityQuery from "@/features/community/useCommunityQuery"
+import type { CommunityCreatePayload } from "@/features/community/types"
 import useSelector from "@/features/user/useSelector"
+import { useCommunityContext } from "@/components/context/community"
+import { responseCode } from "@/features/apis"
 
 export function CreateGroupModal() {
 
   const user = useAppSelector((state) => state.auth.domain)
   
-  const { create, invite } = useCommunityQuery()
+  const { create, inviteWithId } = useCommunityQuery()
+  const { newIssued } = useCommunityContext()
   const { search } = useSelector()
 
 
@@ -30,6 +34,7 @@ export function CreateGroupModal() {
   const [isCreating, setIsCreating] = useState(false)
   const [isSearching, setIsSearching] = useState(false)
   const [searchError, setSearchError] = useState("")
+  const [submitError, setSubmitError] = useState("")
 
   const { control, handleSubmit, watch, reset, setValue, formState: { errors } } = useForm<Group.Context>({
     defaultValues: {
@@ -52,6 +57,12 @@ export function CreateGroupModal() {
     setIsSearching(true)
     setSearchError("")
 
+    if (currentEmail.trim().toLowerCase() === user.info.contact.email?.trim().toLowerCase()) {
+      setSearchError("자기 자신은 초대할 수 없습니다.")
+      setIsSearching(false)
+      return
+    }
+
     search({ searched: inviteMembers, email: currentEmail}, setInviteMembers).then(() => {
         setCurrentEmail("")
         setSearchError("") 
@@ -63,8 +74,8 @@ export function CreateGroupModal() {
   }
 
   const onSubmit = async (data: Group.Context) => {
-
     setIsCreating(true)
+    setSubmitError("")
 
     data.members.push({
       info: {
@@ -98,20 +109,54 @@ export function CreateGroupModal() {
     })
 
     
-    create(data).then(() => {
+    const initialAmount = Number(initialBalance || 0)
+    const payload: CommunityCreatePayload = {
+      name: data.name,
+      description: data.description,
+      initialAmount: Number.isNaN(initialAmount) ? 0 : initialAmount,
+      invitedMembers: [],
+    }
 
-      invite(inviteMembers.map(m => m.contact.email))
-        .then(() => {
-          reset()
-          setInviteMembers([])
-          setCurrentEmail("")
-          setSearchError("")
-          setIsCreating(false)
-          setIsOpen(false)      
-        })
-        .catch(error => setSearchError(error.message))
+    try {
+      const response = await create(payload)
 
-    })
+      if (response?.code !== responseCode.SUCCESS) {
+        setSubmitError(response?.message || "그룹 생성에 실패했습니다.")
+        return
+      }
+
+      const createdId = response?.data?.communityId
+      if (!createdId) {
+        setSubmitError("커뮤니티 id를 확인할 수 없습니다. 생성 응답에 id를 포함해주세요.")
+        return
+      }
+
+      const inviteEmails = inviteMembers
+        .map((member) => member.contact?.email)
+        .filter((email): email is string => Boolean(email))
+
+      if (inviteEmails.length > 0) {
+        const inviteResponse = await inviteWithId({ id: createdId, emails: inviteEmails })
+        if (inviteResponse?.code !== responseCode.SUCCESS) {
+          setSubmitError(inviteResponse?.message || "멤버 초대에 실패했습니다.")
+          return
+        }
+      }
+
+      newIssued()
+      reset()
+      setInviteMembers([])
+      setCurrentEmail("")
+      setSearchError("")
+      setSubmitError("")
+      setIsOpen(false)
+    } catch (error: any) {
+      setSubmitError(
+        error?.message || "그룹 생성 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.",
+      )
+    } finally {
+      setIsCreating(false)
+    }
   }
 
   const handleBalanceChange = (value: string, onChange: (value: string) => void) => {
@@ -281,6 +326,13 @@ export function CreateGroupModal() {
                   <AlertDescription className="text-xs">{searchError}</AlertDescription>
                 </Alert>
               )}
+
+              {submitError && (
+                <Alert variant="destructive" className="py-2">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription className="text-xs">{submitError}</AlertDescription>
+                </Alert>
+              )}
             </div>
 
             {inviteMembers.length > 0 && (
@@ -288,14 +340,14 @@ export function CreateGroupModal() {
                 <Label className="text-sm font-medium">초대할 멤버 ({inviteMembers.length}명)</Label>
                 <div className="space-y-2">
                   {inviteMembers.map((member) => (
-                    <div key={member.contact.email} className="flex items-center justify-between p-3 bg-muted/50 rounded-md">
+                    <div key={member.contact?.email ?? member.name ?? "unknown"} className="flex items-center justify-between p-3 bg-muted/50 rounded-md">
                       <div className="flex items-center gap-3">
                         <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
                           <Users className="h-4 w-4 text-primary" />
                         </div>
                         <div>
-                          <p className="text-sm font-medium">{member.name}</p>
-                          <p className="text-xs text-muted-foreground">{member.contact.email}</p>
+                    <p className="text-sm font-medium">{member.name}</p>
+                    <p className="text-xs text-muted-foreground">{member.contact?.email ?? "이메일 정보 없음"}</p>
                         </div>
                       </div>
                       <Button

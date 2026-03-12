@@ -15,6 +15,10 @@ type UsePaymentModalParams = {
   onPayment: (method: Pay.Method) => Promise<void>
   setup: () => void
   teardown: () => void
+  options: {
+    tossChannel: 'easypay' | 'virtual_account'
+    bankCode: Pay.BankCode | ''
+  }
 }
 
 type UsePaymentModalResult = {
@@ -38,9 +42,10 @@ const usePaymentModal = ({
   onClose,
   onPayment,
   setup,
-  teardown
+  teardown,
+  options
 }: UsePaymentModalParams): UsePaymentModalResult => {
-  const { selected, getMethod, selectMethod } = usePaymentMethod(product)
+  const { selected, getMethod, selectMethod } = usePaymentMethod(product, options)
 
   const totalAmount = useMemo(() => total(product), [product])
 

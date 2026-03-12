@@ -5,7 +5,7 @@ import APIResponse from '@/lib/api/types/response'
 import { GroupTransactionSchema } from '../types/group'
 import { normalizeGroupTransactions } from '../utils/group-normalizer'
 
-const GROUP_TRANSACTION_ENDPOINT = '/transaction/group'
+const GROUP_TRANSACTION_ENDPOINT = '/transaction/query/community'
 export const GROUP_TRANSACTION_QUERY_KEY = ['transaction', 'group'] as const
 
 export const useGroupTransactionsQuery = (
@@ -17,9 +17,9 @@ export const useGroupTransactionsQuery = (
       const response = (await request({
         method: 'GET' as Method,
         url: `${GROUP_TRANSACTION_ENDPOINT}/${groupId}`,
-      })) as APIResponse<GroupTransactionSchema[]>
+      })) as APIResponse<{ items?: GroupTransactionSchema[] }>
 
-      return normalizeGroupTransactions(response.data)
+      return normalizeGroupTransactions(response.data?.items ?? [])
     },
     staleTime: 1000 * 60,
     gcTime: 1000 * 60 * 5,

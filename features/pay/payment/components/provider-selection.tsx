@@ -23,17 +23,25 @@ const ProviderSelection = ({ selected, disabled, onSelect }: ProviderSelectionPr
       <div className="space-y-2">
         {providers.map(provider => {
           const isSelected = selectedProviderId === provider.id
+          const isUnsupported = provider.supported === false
+          const isDisabled = disabled || isUnsupported
 
           return (
             <button
               key={provider.id}
-              onClick={() => onSelect(provider.id)}
-              disabled={disabled}
+              onClick={() => {
+                if (isUnsupported) {
+                  alert('카카오페이는 현재 지원하지 않습니다')
+                  return
+                }
+                onSelect(provider.id)
+              }}
+              disabled={isDisabled}
               className={`w-full p-4 rounded-lg border transition-all duration-200 ${
                 isSelected
                   ? 'border-primary bg-primary/5 shadow-sm ring-2 ring-primary/20'
                   : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
-              } ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+              } ${isDisabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
             >
               <div className="flex items-center gap-4">
                 <div
@@ -60,6 +68,9 @@ const ProviderSelection = ({ selected, disabled, onSelect }: ProviderSelectionPr
                     )}
                   </div>
                   <div className="text-sm text-gray-500">{provider.description}</div>
+                  {isUnsupported && (
+                    <div className="text-xs text-red-500 mt-1">현재 지원하지 않습니다</div>
+                  )}
                 </div>
 
                 {isSelected ? (

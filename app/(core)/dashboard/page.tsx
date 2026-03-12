@@ -38,8 +38,8 @@ export default function DashboardPage() {
               <CreditCard className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">₩127,500</div>
-              <p className="text-xs text-muted-foreground">+12% 전월 대비</p>
+              <div className="text-2xl font-bold">₩0</div>
+              <p className="text-xs text-muted-foreground">0% 전월 대비</p>
             </CardContent>
           </Card>
         </div>

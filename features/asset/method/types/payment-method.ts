@@ -1,4 +1,4 @@
-export type PaymentMethodType = 'card' | 'bank' | 'mobile'
+export type PaymentMethodType = 'card' | 'bank' | 'mobile' | 'wallet'
 
 export interface PaymentMethodSchema {
   id: string

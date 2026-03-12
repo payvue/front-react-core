@@ -27,8 +27,10 @@ export const formatCurrency = (amount: number) => {
   }).format(amount)
 }
 
-export const formatTimestamp = (timestamp: string) => {
+export const formatTimestamp = (timestamp?: string) => {
+  if (!timestamp) return '-'
   const date = new Date(timestamp)
+  if (Number.isNaN(date.getTime())) return '-'
   const now = new Date()
   const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60))
 
@@ -71,4 +73,3 @@ export function timeAgo(timestamp: string): string {
   const years = Math.floor(days / 365);
   return `${years}년 전`;
 }
-

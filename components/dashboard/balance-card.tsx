@@ -4,10 +4,12 @@ import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Wallet, Plus, ArrowUpRight, Star, Gift } from "lucide-react"
 import { useAppSelector } from "@/lib/redux/hooks"
+import { useRouter } from "next/navigation"
 
 export function BalanceCard() {
 
   const { asset } = useAppSelector((state) => state.auth.domain)
+  const router = useRouter()
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("ko-KR", {
@@ -51,6 +53,7 @@ export function BalanceCard() {
                   backgroundColor: "#7c3aed !important",
                   color: "#ffffff !important",
                 }}
+                onClick={() => router.push("/payment?tab=charge")}
               >
                 <Plus className="mr-2 h-4 w-4 text-white" style={{ color: "#ffffff !important" }} />
                 <span style={{ color: "#ffffff !important" }}>충전</span>
@@ -62,6 +65,7 @@ export function BalanceCard() {
                   backgroundColor: "#7c3aed !important",
                   color: "#ffffff !important",
                 }}
+                onClick={() => router.push("/payment?tab=transfer")}
               >
                 <ArrowUpRight className="mr-2 h-4 w-4 text-white" style={{ color: "#ffffff !important" }} />
                 <span style={{ color: "#ffffff !important" }}>송금</span>

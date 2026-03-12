@@ -1,38 +1,36 @@
-"use client"
+'use client'
 
-import { useState } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { CreditCard, Clock, CheckCircle, XCircle, Send, AlertCircle, Calendar } from "lucide-react"
-
-interface PaymentRequest {
-  id: string
-  requesterId: string
-  requesterName: string
-  requesterAvatar?: string
-  amount: number
-  description: string
-  category: string
-  requestDate: string
-  status: "pending" | "approved" | "rejected"
-  approvedDate?: string
-  rejectedDate?: string
-  rejectionReason?: string
-  urgency: "low" | "medium" | "high"
-}
+import { useState } from 'react'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import { Badge } from '@/components/ui/badge'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { CreditCard, Clock, CheckCircle, XCircle, Send, AlertCircle, Calendar } from 'lucide-react'
+import usePaymentRequestQuery from '@/features/community/usePaymentRequestQuery'
 
 interface GroupMember {
   id: string
   name: string
-  role: "leader" | "member"
+  role: 'leader' | 'member'
   avatar?: string
 }
+
+type PaymentCategory = 'CASH' | 'MILEAGE' | 'GIFT' | 'GAME' | 'MUSIC' | 'SHOPPING' | 'COUPON'
+
+const PAYMENT_CATEGORIES: Array<{ value: PaymentCategory; label: string }> = [
+  { value: 'CASH', label: '캐시' },
+  { value: 'MILEAGE', label: '마일리지' },
+  { value: 'GIFT', label: '기프트' },
+  { value: 'GAME', label: '게임' },
+  { value: 'MUSIC', label: '음악' },
+  { value: 'SHOPPING', label: '쇼핑' },
+  { value: 'COUPON', label: '쿠폰' },
+]
 
 export function PaymentRequests({
   groupId,
@@ -43,106 +41,92 @@ export function PaymentRequests({
   currentUserId: string
   isGroupLeader: boolean
 }) {
-  const [amount, setAmount] = useState("")
-  const [description, setDescription] = useState("")
-  const [category, setCategory] = useState("")
-  const [urgency, setUrgency] = useState<"low" | "medium" | "high">("medium")
+  const [amount, setAmount] = useState('')
+  const [description, setDescription] = useState('')
+  const [category, setCategory] = useState<PaymentCategory | ''>('')
+  const [urgency, setUrgency] = useState<'low' | 'medium' | 'high'>('medium')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  // Mock data
-  const groupMembers: GroupMember[] = [
-    { id: "1", name: "김그룹장", role: "leader", avatar: "/placeholder.svg?height=40&width=40" },
-    { id: "2", name: "이멤버", role: "member", avatar: "/placeholder.svg?height=40&width=40" },
-    { id: "3", name: "박멤버", role: "member", avatar: "/placeholder.svg?height=40&width=40" },
-  ]
+  const {
+    paymentRequests,
+    myRequests,
+    isLoadingRequests,
+    createRequest,
+    approveRequest,
+    rejectRequest,
+  } = usePaymentRequestQuery(groupId, isGroupLeader)
 
-  const paymentRequests: PaymentRequest[] = [
-    {
-      id: "1",
-      requesterId: "2",
-      requesterName: "이멤버",
-      requesterAvatar: "/placeholder.svg?height=40&width=40",
-      amount: 50000,
-      description: "회사 점심 회식비",
-      category: "식음료",
-      requestDate: "2024-01-15",
-      status: "pending",
-      urgency: "high",
-    },
-    {
-      id: "2",
-      requesterId: "3",
-      requesterName: "박멤버",
-      requesterAvatar: "/placeholder.svg?height=40&width=40",
-      amount: 25000,
-      description: "프로젝트 관련 서적 구매",
-      category: "도서",
-      requestDate: "2024-01-14",
-      status: "approved",
-      approvedDate: "2024-01-14",
-      urgency: "medium",
-    },
-    {
-      id: "3",
-      requesterId: "2",
-      requesterName: "이멤버",
-      requesterAvatar: "/placeholder.svg?height=40&width=40",
-      amount: 15000,
-      description: "택시비",
-      category: "교통",
-      requestDate: "2024-01-13",
-      status: "rejected",
-      rejectedDate: "2024-01-13",
-      rejectionReason: "개인 교통비는 지원하지 않습니다.",
-      urgency: "low",
-    },
-  ]
+  const getRequesterName = (name?: string) => {
+    if (!name || !name.trim()) {
+      return '알 수 없음'
+    }
+
+    return name
+  }
 
   const handleSubmitRequest = async () => {
     if (!amount || !description || !category) return
 
     setIsSubmitting(true)
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    try {
+      await createRequest({
+        amount: Number.parseInt(amount),
+        description,
+        category,
+        urgency,
+      })
 
-    alert(`₩${Number.parseInt(amount).toLocaleString()} 결제 요청이 전송되었습니다.`)
+      alert(`₩${Number.parseInt(amount).toLocaleString()} 결제 요청이 전송되었습니다.`)
 
-    setAmount("")
-    setDescription("")
-    setCategory("")
-    setUrgency("medium")
-    setIsSubmitting(false)
+      setAmount('')
+      setDescription('')
+      setCategory('')
+      setUrgency('medium')
+    } catch (error) {
+      alert('결제 요청 생성에 실패했습니다: ' + (error as Error).message)
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const handleApproveRequest = async (requestId: string) => {
-    await new Promise((resolve) => setTimeout(resolve, 500))
-    alert("결제 요청이 승인되었습니다.")
+    try {
+      await approveRequest(requestId)
+      alert('결제 요청이 승인되었습니다.')
+    } catch (error) {
+      alert('승인에 실패했습니다: ' + (error as Error).message)
+    }
   }
 
   const handleRejectRequest = async (requestId: string) => {
-    const reason = prompt("거부 사유를 입력해주세요:")
+    const reason = prompt('거부 사유를 입력해주세요:')
     if (!reason) return
 
-    await new Promise((resolve) => setTimeout(resolve, 500))
-    alert("결제 요청이 거부되었습니다.")
+    try {
+      await rejectRequest({ requestId, reason })
+      alert('결제 요청이 거부되었습니다.')
+    } catch (error) {
+      alert('거부에 실패했습니다: ' + (error as Error).message)
+    }
   }
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case "pending":
+      case 'pending':
         return (
           <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
             <Clock className="h-3 w-3 mr-1" />
             대기중
           </Badge>
         )
-      case "approved":
+      case 'approved':
         return (
           <Badge variant="secondary" className="bg-green-100 text-green-800">
             <CheckCircle className="h-3 w-3 mr-1" />
             승인됨
           </Badge>
         )
-      case "rejected":
+      case 'rejected':
         return (
           <Badge variant="destructive">
             <XCircle className="h-3 w-3 mr-1" />
@@ -156,19 +140,19 @@ export function PaymentRequests({
 
   const getUrgencyBadge = (urgency: string) => {
     switch (urgency) {
-      case "high":
+      case 'high':
         return (
           <Badge variant="destructive" className="text-xs">
             긴급
           </Badge>
         )
-      case "medium":
+      case 'medium':
         return (
           <Badge variant="secondary" className="text-xs bg-orange-100 text-orange-800">
             보통
           </Badge>
         )
-      case "low":
+      case 'low':
         return (
           <Badge variant="outline" className="text-xs">
             낮음
@@ -184,21 +168,24 @@ export function PaymentRequests({
   }
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("ko-KR", {
-      style: "currency",
-      currency: "KRW",
+    return new Intl.NumberFormat('ko-KR', {
+      style: 'currency',
+      currency: 'KRW',
     }).format(amount)
   }
 
-  const pendingRequests = paymentRequests.filter((req) => req.status === "pending")
-  const completedRequests = paymentRequests.filter((req) => req.status !== "pending")
+  const requestSource = isGroupLeader ? paymentRequests : myRequests
+  const pendingRequests = paymentRequests.filter((req) => req.status === 'pending')
+  const completedRequests = isGroupLeader
+    ? requestSource.filter((req) => req.status !== 'pending')
+    : requestSource
 
   return (
     <div className="space-y-6">
-      <Tabs defaultValue={isGroupLeader ? "manage" : "request"} className="space-y-6">
+      <Tabs defaultValue={isGroupLeader ? 'manage' : 'request'} className="space-y-6">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="request">결제 요청</TabsTrigger>
-          <TabsTrigger value="manage">{isGroupLeader ? "요청 관리" : "내 요청"}</TabsTrigger>
+          <TabsTrigger value="manage">{isGroupLeader ? '요청 관리' : '내 요청'}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="request" className="space-y-6">
@@ -209,7 +196,9 @@ export function PaymentRequests({
                   <Send className="h-5 w-5" />
                   그룹장에게 결제 요청
                 </CardTitle>
-                <CardDescription>그룹 예산으로 결제가 필요한 항목을 요청할 수 있습니다</CardDescription>
+                <CardDescription>
+                  그룹 예산으로 결제가 필요한 항목을 요청할 수 있습니다
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -225,12 +214,21 @@ export function PaymentRequests({
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="category">카테고리</Label>
-                    <Input
-                      id="category"
-                      placeholder="예: 식음료, 교통, 사무용품"
+                    <Select
                       value={category}
-                      onChange={(e) => setCategory(e.target.value)}
-                    />
+                      onValueChange={(value) => setCategory(value as PaymentCategory)}
+                    >
+                      <SelectTrigger id="category">
+                        <SelectValue placeholder="카테고리를 선택하세요" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {PAYMENT_CATEGORIES.map((item) => (
+                          <SelectItem key={item.value} value={item.value}>
+                            {item.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
 
@@ -248,14 +246,14 @@ export function PaymentRequests({
                 <div className="space-y-2">
                   <Label>긴급도</Label>
                   <div className="flex gap-2">
-                    {["low", "medium", "high"].map((level) => (
+                    {['low', 'medium', 'high'].map((level) => (
                       <Button
                         key={level}
-                        variant={urgency === level ? "default" : "outline"}
+                        variant={urgency === level ? 'default' : 'outline'}
                         size="sm"
-                        onClick={() => setUrgency(level as "low" | "medium" | "high")}
+                        onClick={() => setUrgency(level as 'low' | 'medium' | 'high')}
                       >
-                        {level === "low" ? "낮음" : level === "medium" ? "보통" : "긴급"}
+                        {level === 'low' ? '낮음' : level === 'medium' ? '보통' : '긴급'}
                       </Button>
                     ))}
                   </div>
@@ -268,7 +266,7 @@ export function PaymentRequests({
                   size="lg"
                 >
                   {isSubmitting
-                    ? "요청 전송 중..."
+                    ? '요청 전송 중...'
                     : `₩${amount ? Number.parseInt(amount).toLocaleString() : 0} 결제 요청`}
                 </Button>
               </CardContent>
@@ -285,8 +283,8 @@ export function PaymentRequests({
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground">
-                  그룹장으로서 멤버들의 결제 요청을 관리할 수 있습니다. "요청 관리" 탭에서 대기 중인 요청을 확인하고
-                  승인/거부하세요.
+                  그룹장으로서 멤버들의 결제 요청을 관리할 수 있습니다. "요청 관리" 탭에서 대기 중인
+                  요청을 확인하고 승인/거부하세요.
                 </p>
               </CardContent>
             </Card>
@@ -311,13 +309,13 @@ export function PaymentRequests({
                         <div className="flex items-center gap-3">
                           <Avatar className="h-10 w-10">
                             <AvatarImage
-                              src={request.requesterAvatar || "/placeholder.svg"}
+                              src={request.requesterAvatar || '/placeholder.svg'}
                               alt={request.requesterName}
                             />
-                            <AvatarFallback>{request.requesterName[0]}</AvatarFallback>
+                            <AvatarFallback>{getRequesterName(request.requesterName)[0]}</AvatarFallback>
                           </Avatar>
                           <div>
-                            <p className="font-medium">{request.requesterName}</p>
+                            <p className="font-medium">{getRequesterName(request.requesterName)}</p>
                             <p className="text-sm text-muted-foreground flex items-center gap-2">
                               <Calendar className="h-3 w-3" />
                               {request.requestDate}
@@ -326,7 +324,9 @@ export function PaymentRequests({
                         </div>
                         <div className="flex items-center gap-2">
                           {getUrgencyBadge(request.urgency)}
-                          <span className="font-bold text-lg">{formatCurrency(request.amount)}</span>
+                          <span className="font-bold text-lg">
+                            {formatCurrency(request.amount)}
+                          </span>
                         </div>
                       </div>
 
@@ -338,7 +338,11 @@ export function PaymentRequests({
                       </div>
 
                       <div className="flex gap-2">
-                        <Button onClick={() => handleApproveRequest(request.id)} className="flex-1" size="sm">
+                        <Button
+                          onClick={() => handleApproveRequest(request.id)}
+                          className="flex-1"
+                          size="sm"
+                        >
                           <CheckCircle className="h-4 w-4 mr-1" />
                           승인
                         </Button>
@@ -363,12 +367,12 @@ export function PaymentRequests({
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <CreditCard className="h-5 w-5" />
-                {isGroupLeader ? "처리된 요청" : "내 요청 내역"}
+                {isGroupLeader ? '처리된 요청' : '내 요청 내역'}
               </CardTitle>
               <CardDescription>
                 {isGroupLeader
-                  ? "승인 또는 거부된 결제 요청 내역입니다"
-                  : "제출한 결제 요청의 처리 상태를 확인할 수 있습니다"}
+                  ? '승인 또는 거부된 결제 요청 내역입니다'
+                  : '제출한 결제 요청의 처리 상태를 확인할 수 있습니다'}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -379,13 +383,13 @@ export function PaymentRequests({
                       <div className="flex items-center gap-3">
                         <Avatar className="h-10 w-10">
                           <AvatarImage
-                            src={request.requesterAvatar || "/placeholder.svg"}
+                            src={request.requesterAvatar || '/placeholder.svg'}
                             alt={request.requesterName}
                           />
-                          <AvatarFallback>{request.requesterName[0]}</AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <p className="font-medium">{request.requesterName}</p>
+                            <AvatarFallback>{getRequesterName(request.requesterName)[0]}</AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <p className="font-medium">{getRequesterName(request.requesterName)}</p>
                           <p className="text-sm text-muted-foreground flex items-center gap-2">
                             <Calendar className="h-3 w-3" />
                             요청: {request.requestDate}
@@ -417,7 +421,7 @@ export function PaymentRequests({
                       </Badge>
                     </div>
 
-                    {request.status === "rejected" && request.rejectionReason && (
+                    {request.status === 'rejected' && request.rejectionReason && (
                       <div className="bg-red-50 border border-red-200 rounded-lg p-3">
                         <p className="text-sm text-red-800">
                           <strong>거부 사유:</strong> {request.rejectionReason}

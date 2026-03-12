@@ -9,11 +9,15 @@ import useSelector from "@/features/user/useSelector"
 import { User } from "@/types"
 import useCommunityQuery from "@/features/community/useCommunityQuery"
 
+interface InviteFollowerProps {
+  groupId: string
+  onInviteSuccess?: () => void
+}
 
-export function InviteFollower() {
+export function InviteFollower({ groupId, onInviteSuccess }: InviteFollowerProps) {
 
     const { search } = useSelector()
-    const { invite } = useCommunityQuery()
+    const { inviteWithId } = useCommunityQuery()
 
     const [isSearching, setIsSearching] = useState(false)
     const [searchError, setSearchError] = useState("")    
@@ -40,10 +44,11 @@ export function InviteFollower() {
         setIsSearching(true)
         setSearchError("")
 
-        invite(inviteMembers.map(m => m.contact.email))
+        inviteWithId({ id: groupId, emails: inviteMembers.map(m => m.contact.email) })
             .then(() => {
                 setInviteMembers([])
                 setSearchError("")                     
+                onInviteSuccess?.()
             })
             .catch(err => setSearchError(err.message))        
 
@@ -107,14 +112,14 @@ export function InviteFollower() {
                 <Label className="text-sm font-medium">초대할 멤버 ({inviteMembers.length}명)</Label>
                 <div className="space-y-2">
                   {inviteMembers.map((member) => (
-                    <div key={member.contact.email} className="flex items-center justify-between p-3 bg-muted/50 rounded-md">
+                    <div key={member.contact?.email ?? member.name ?? "unknown"} className="flex items-center justify-between p-3 bg-muted/50 rounded-md">
                       <div className="flex items-center gap-3">
                         <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
                           <Users className="h-4 w-4 text-primary" />
                         </div>
                         <div>
                           <p className="text-sm font-medium">{member.name}</p>
-                          <p className="text-xs text-muted-foreground">{member.contact.email}</p>
+                          <p className="text-xs text-muted-foreground">{member.contact?.email ?? "이메일 정보 없음"}</p>
                         </div>
                       </div>
                       <Button

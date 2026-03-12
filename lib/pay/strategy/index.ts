@@ -10,6 +10,8 @@ import { createMultiplePaymentStrategy as createMultipleStrategy } from "./multi
 
 export const createStrategyByType = (type: PaymentStrategyType): PaymentStrategy => {
   switch (type) {
+    case "virtual_account":
+      return createSingleStrategy()
     case "recurrent":
       return createRecurrentStrategy()
     case "multiple":

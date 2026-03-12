@@ -1,15 +1,24 @@
 "use client"
 
 import type { SelectedMethod } from '@/features/pay/payment/model/SelectedMethod'
+import type { PaymentMethodModel } from '@/features/asset/method/model/payment-method-type'
 import RegisteredPaymentMethod from './registered'
 
 type RegisteredMethodSectionProps = {
+  methods: PaymentMethodModel[]
   selected: SelectedMethod
   disabled: boolean
   onSelectCard: (cardId: string | null) => void
+  isLoading?: boolean
 }
 
-const RegisteredMethodSection = ({ selected, disabled, onSelectCard }: RegisteredMethodSectionProps) => (
+const RegisteredMethodSection = ({
+  methods,
+  selected,
+  disabled,
+  onSelectCard,
+  isLoading
+}: RegisteredMethodSectionProps) => (
   <div>
     <div className="flex items-center justify-between mb-3">
       <div className="flex items-center gap-2">
@@ -21,9 +30,11 @@ const RegisteredMethodSection = ({ selected, disabled, onSelectCard }: Registere
     </div>
 
     <RegisteredPaymentMethod
+      methods={methods}
       selectedCard={selected?.type === 'card' ? selected.id : null}
       onCardSelect={onSelectCard}
       disabled={disabled}
+      isLoading={isLoading}
     />
   </div>
 )

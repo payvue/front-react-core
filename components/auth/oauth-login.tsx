@@ -1,53 +1,144 @@
-"use client"
+'use client'
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Chrome, Github } from "lucide-react"
+import { useEffect, useRef, useState } from 'react'
+import { Button } from '@/components/ui/button'
+import { Chrome, Github } from 'lucide-react'
+import { OAuthProvider } from '@/features/auth/types/oauth'
+import { useRouter } from 'next/navigation'
+import { useUserContext } from '@/components/context/user'
 
 interface OAuthLoginProps {
-  onOAuthLogin: (provider: string) => void
+  onOAuthLogin: (provider: OAuthProvider) => void
+}
+
+interface OAuthMessage {
+  type: 'oauth:result'
+  provider: OAuthProvider
+  error?: string
+  redirectUrl?: string
+  token?: string
 }
 
 export function OAuthLogin({ onOAuthLogin }: OAuthLoginProps) {
-  const [isLoading, setIsLoading] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState<OAuthProvider | null>(null)
+  const [error, setError] = useState<string | null>(null)
+  const router = useRouter()
+  const popupRef = useRef<Window | null>(null)
+  const { authorized } = useUserContext()
 
-  const handleOAuthLogin = async (provider: string) => {
-    setIsLoading(provider)
+  const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_OAUTH_CLIENT_ID || ''
+  const googleAuthorizeUrl =
+    process.env.NEXT_PUBLIC_GOOGLE_OAUTH_AUTHORIZE_URL ||
+    'http://localhost:8080/oauth2/authorization/google'
+  const githubAuthorizeUrl =
+    process.env.NEXT_PUBLIC_GITHUB_OAUTH_AUTHORIZE_URL ||
+    'http://localhost:8080/oauth2/authorization/github'
 
-    // Simulate OAuth process
-    await new Promise((resolve) => setTimeout(resolve, 1500))
+  useEffect(() => {
+    const channel = new BroadcastChannel('oauth-channel')
+    const handleBroadcast = (event: MessageEvent) => {
+      const data = event.data as OAuthMessage
+      if (!data || data.type !== 'oauth:result') return
 
-    // Mock OAuth response - simulate new user vs existing user
-    const isExistingUser = Math.random() > 0.5
+      if (!data.token) {
+        setError('OAuth 토큰이 없습니다')
+        return
+      }
 
-    if (isExistingUser) {
-      // Existing user - direct login
-      localStorage.setItem(
-        "user",
-        JSON.stringify({
-          id: "oauth-" + Date.now(),
-          email: `user@${provider}.com`,
-          name: "OAuth 사용자",
-          balance: 75000,
-          isLoggedIn: true,
-          provider,
-        }),
-      )
-      window.location.href = "/dashboard"
-    } else {
-      // New user - redirect to additional info page
-      localStorage.setItem(
-        "oauthTemp",
-        JSON.stringify({
-          provider,
-          email: `newuser@${provider}.com`,
-          name: `${provider} 사용자`,
-        }),
-      )
-      window.location.href = "/auth/complete-profile"
+      authorized(data.token)
+      router.replace('/dashboard')
     }
 
+    channel.addEventListener('message', handleBroadcast)
+
+    const handleMessage = (event: MessageEvent) => {
+      const apiOrigin = (process.env.NEXT_PUBLIC_PAYVUE_API_URI || 'http://localhost:8080').replace(
+        /\/$/,
+        '',
+      )
+      const allowedOrigins = [window.location.origin, apiOrigin].filter(Boolean)
+      if (!allowedOrigins.includes(event.origin)) return
+
+      const data = event.data as OAuthMessage
+      if (!data || data.type !== 'oauth:result') return
+
+      if (data.error) {
+        setError(data.error)
+        return
+      }
+
+      if (!data.token) {
+        setError('OAuth 토큰이 없습니다')
+        return
+      }
+
+      authorized(data.token)
+      router.replace('/dashboard')
+    }
+
+    window.addEventListener('message', handleMessage)
+
+    return () => {
+      channel.removeEventListener('message', handleBroadcast)
+      channel.close()
+      window.removeEventListener('message', handleMessage)
+    }
+  }, [router, authorized])
+
+  const openBlankPopup = (provider: OAuthProvider) => {
+    if (popupRef.current && !popupRef.current.closed) {
+      popupRef.current.close()
+    }
+
+    popupRef.current = window.open('', `oauth-${provider}`, 'width=520,height=640')
+
+    if (!popupRef.current) {
+      throw new Error('팝업이 차단되었습니다. 팝업 허용 후 다시 시도해주세요')
+    }
+
+    try {
+      popupRef.current.document.title = 'OAuth 로그인 준비 중'
+      popupRef.current.document.body.innerHTML =
+        '<p style="font-family: sans-serif; padding: 16px;">로그인 페이지를 불러오는 중입니다...</p>'
+    } catch (error) {
+      // ignore cross-origin write errors
+    }
+
+    return popupRef.current
+  }
+
+  const handleGoogleLogin = () => {
+    if (!googleClientId) {
+      setError('Google OAuth Client ID가 설정되지 않았습니다')
+      return
+    }
+
+    setIsLoading('google')
+    setError(null)
+
+    const popup = openBlankPopup('google')
+    popup.location.href = googleAuthorizeUrl
     setIsLoading(null)
+  }
+
+  const handleGithubLogin = () => {
+    setIsLoading('github')
+    setError(null)
+
+    const popup = openBlankPopup('github')
+    popup.location.href = githubAuthorizeUrl
+    setIsLoading(null)
+  }
+
+  const handleOAuthLogin = (provider: OAuthProvider) => {
+    onOAuthLogin(provider)
+
+    const handlers: Record<OAuthProvider, () => void> = {
+      google: handleGoogleLogin,
+      github: handleGithubLogin,
+    }
+
+    handlers[provider]()
   }
 
   return (
@@ -65,11 +156,11 @@ export function OAuthLogin({ onOAuthLogin }: OAuthLoginProps) {
         <Button
           variant="outline"
           className="w-full bg-transparent"
-          onClick={() => handleOAuthLogin("google")}
+          onClick={() => handleOAuthLogin('google')}
           disabled={isLoading !== null}
         >
-          {isLoading === "google" ? (
-            "Google 로그인 중..."
+          {isLoading === 'google' ? (
+            'Google 로그인 중...'
           ) : (
             <>
               <Chrome className="mr-2 h-4 w-4" />
@@ -81,11 +172,11 @@ export function OAuthLogin({ onOAuthLogin }: OAuthLoginProps) {
         <Button
           variant="outline"
           className="w-full bg-transparent"
-          onClick={() => handleOAuthLogin("github")}
+          onClick={() => handleOAuthLogin('github')}
           disabled={isLoading !== null}
         >
-          {isLoading === "github" ? (
-            "GitHub 로그인 중..."
+          {isLoading === 'github' ? (
+            'GitHub 로그인 중...'
           ) : (
             <>
               <Github className="mr-2 h-4 w-4" />
@@ -94,6 +185,8 @@ export function OAuthLogin({ onOAuthLogin }: OAuthLoginProps) {
           )}
         </Button>
       </div>
+
+      {error && <p className="text-sm text-red-500">{error}</p>}
     </div>
   )
 }

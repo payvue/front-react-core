@@ -8,7 +8,7 @@ import { QUERY_USER_KEY } from "@/components/context/user";
 import useAccountAPI from "./api";
 
 
-const useAsyncAccountQuery = (authenticated: () => (() => boolean), isLoggedIn: boolean) => {
+const useAsyncAccountQuery = (authenticated: () => (() => boolean), isLoggedIn = true) => {
     
     const dispatch = useAppDispatch()
     const { info } = useAccountAPI()

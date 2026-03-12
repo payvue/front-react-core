@@ -3,12 +3,16 @@ import { TransactionStatus } from '../types'
 
 interface GroupApiTransaction {
   id: string
-  type: 'payment' | 'contribution' | 'withdrawal'
-  amount: number
-  description: string
-  paidBy: string
-  date: string
-  status: 'completed' | 'pending' | 'failed' | 'refunded'
+  type?: 'payment' | 'contribution' | 'withdrawal'
+  kind?: string
+  amount?: number | null
+  description?: string
+  paidBy?: string | null
+  sender?: string | null
+  triggerName?: string | null
+  date?: string
+  occurredAt?: string
+  status?: 'completed' | 'pending' | 'failed' | 'refunded'
   category?: string
 }
 
@@ -30,14 +34,21 @@ export const normalizeGroupTransactions = (
 ): GroupTransactionSchema[] => {
   return items.map((item) => ({
     id: item.id,
-    kind: typeMap[item.type] ?? 'payment',
-    amount: item.amount,
-    occurredAt: item.date,
-    status: statusMap[item.status] ?? 'completed',
-    description: item.description,
+    kind:
+      item.type
+        ? typeMap[item.type] ?? 'payment'
+        : item.kind === 'transfer'
+          ? 'transfer'
+          : item.kind === 'payment'
+            ? 'payment'
+            : 'payment',
+    amount: item.amount ?? 0,
+    occurredAt: item.date ?? item.occurredAt ?? new Date().toISOString(),
+    status: item.status ? statusMap[item.status] ?? 'completed' : 'completed',
+    description: item.description ?? '-',
     category: item.category,
     details: {
-      paidBy: item.paidBy,
+      paidBy: item.paidBy ?? item.sender ?? item.triggerName ?? undefined,
       categoryLabel: item.category,
     },
   }))

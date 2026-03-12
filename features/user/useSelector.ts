@@ -20,7 +20,7 @@ const useSelector = () => {
         throw Error("이미 추가된 멤버입니다.")
 
       const finder = (found: User.Info) => appender(prev => [...prev, found])
-      exist({ email: email, finder: finder })
+      await exist({ email: email, finder: finder })
     }
 
     return {

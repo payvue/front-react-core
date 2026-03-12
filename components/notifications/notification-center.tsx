@@ -5,25 +5,25 @@ import { Badge } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
-import { produce } from 'immer'
 import { useAlarmContext } from '../context/alarm'
-import { Alarm } from '@/types'
 import { getNotificationIcon } from './style'
 import { formatCurrency, formatTimestamp } from '@/util/display'
-import { client } from '@/lib/sse/client'
-
-interface NotificationWithDismiss extends Alarm.Notification {
-  isDismissing?: boolean
-  isNew?: boolean
-}
+import useAlarmAPI from '@/features/alarm/api'
+import { requestCommunityRefresh } from '@/features/community/utils/sync'
 
 export function NotificationCenter() {
   const [isOpen, setIsOpen] = useState(false)
-  const [notifications, setNotifications] = useState<{ noti: NotificationWithDismiss[] }>({ noti: [] })
   const [isLoading, setIsLoading] = useState(false)
   const [hasMore, setHasMore] = useState(true)
 
-  const { receiveNotifications } = useAlarmContext()
+  const {
+    receiveNotifications,
+    notifications,
+    markNotificationAsRead,
+    markNotificationsAsRead,
+    dismissNotification,
+  } = useAlarmContext()
+  const alarmAPI = useAlarmAPI()
 
   const load = async () => {
     if (isLoading || !hasMore) return
@@ -31,9 +31,6 @@ export function NotificationCenter() {
     try {
       const alarm = await receiveNotifications()
       if (alarm?.noti) {
-        setNotifications((prev) => ({
-          noti: [...alarm.noti.map((n) => ({ ...n, isNew: false }))],
-        }))
         setHasMore(alarm.noti.length > 0)
       }
     } catch (error) {
@@ -44,81 +41,59 @@ export function NotificationCenter() {
   }
 
   useEffect(() => {
-    setNotifications({ noti: [] })
     load()
-  }, [])
-
-  useEffect(() => {
-    const unsubscribe = client({
-      api: '/sse/subscribe',
-      event: (alarm) => {
-        setNotifications((prev) => ({
-          noti: alarm.noti.map((n) => ({ ...n, isNew: true })).concat(prev.noti),
-        }))
-      },
-    })
-
-    return () => unsubscribe()
   }, [])
 
   const unreadCount = notifications.noti.filter((n) => !n.event.meta.isRead).length
 
-  const markAsRead = (id: string) => {
-    setNotifications((prev) =>
-      produce(prev, (draft) => {
-        const target = draft.noti.find((n) => n.id === id)
-        if (target) {
-          target.event.meta.isRead = true
-          target.isNew = false
-        }
-      })
-    )
+  const markAsRead = async (id: string) => {
+    try {
+      await alarmAPI.markAsRead(id)
+      markNotificationAsRead(id)
+    } catch (error) {
+      console.error('알림 읽음 처리 실패:', error)
+    }
   }
 
-  const markAllAsRead = () => {
-    setNotifications((prev) =>
-      produce(prev, (draft) => {
-        draft.noti.forEach((n) => {
-          n.event.meta.isRead = true
-          n.isNew = false
-        })
-      })
-    )
+  const markAllAsRead = async () => {
+    const unreadIds = notifications.noti.filter((n) => !n.event.meta.isRead).map((n) => n.id)
+    if (unreadIds.length === 0) return
+    try {
+      await alarmAPI.markAllAsRead(unreadIds)
+      markNotificationsAsRead(unreadIds)
+    } catch (error) {
+      console.error('알림 전체 읽음 처리 실패:', error)
+    }
   }
 
   const deleteNotification = (id: string) => {
-    setNotifications((prev) =>
-      produce(prev, (draft) => {
-        const target = draft.noti.find((n) => n.id === id)
-        if (target) target.isDismissing = true
-      })
-    )
-    setTimeout(() => {
-      setNotifications((prev) => ({
-        noti: prev.noti.filter((n) => n.id !== id),
-      }))
-    }, 300)
+    dismissNotification(id)
   }
 
-  const handleGroupInviteAction = (id: string, action: 'accept' | 'reject') => {
+  const handleGroupInviteAction = async (id: string, action: 'accept' | 'reject') => {
     const notification = notifications.noti.find((n) => n.id === id)
     if (!notification) return
 
-    if (action === 'accept') {
-      const existingGroups = JSON.parse(localStorage.getItem('userGroups') || '[]')
-      const newGroup = {
-        id: notification.groupId,
-        name: notification.groupName,
-        inviterName: notification.inviterName,
-        joinedAt: new Date().toISOString(),
-      }
-      localStorage.setItem('userGroups', JSON.stringify([...existingGroups, newGroup]))
-      alert(`${notification.groupName} 그룹에 가입되었습니다!`)
-    } else {
-      alert(`${notification.groupName} 그룹 초대를 거절했습니다.`)
-    }
+    const groupName = notification.event?.content?.groupName ?? '해당'
 
-    deleteNotification(id)
+    try {
+      await alarmAPI.processInviteAction(id, action)
+      await alarmAPI.markAsRead(id)
+      markNotificationAsRead(id)
+      requestCommunityRefresh()
+      setTimeout(() => requestCommunityRefresh(), 600)
+      alert(
+        action === 'accept'
+          ? `${groupName} 그룹 초대를 수락했습니다.`
+          : `${groupName} 그룹 초대를 거절했습니다.`,
+      )
+      setTimeout(() => {
+        deleteNotification(id)
+      }, 180)
+    } catch (error) {
+      console.error('그룹 초대 처리 실패:', error)
+      alert('그룹 초대 처리에 실패했습니다.')
+    }
   }
 
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
@@ -250,7 +225,9 @@ export function NotificationCenter() {
 
                             <div className="flex items-center gap-2 mt-2">
                               <Clock className="h-3 w-3 text-muted-foreground" />
-                              <span className="text-xs text-muted-foreground">{formatTimestamp(n.timestamp)}</span>
+                              <span className="text-xs text-muted-foreground">
+                                {formatTimestamp(n.createdAt ?? n.timestamp)}
+                              </span>
                               {n.event.meta.isRead && (
                                 <Badge variant="outline" className="text-xs px-1.5 py-0.5 h-4 text-muted-foreground">
                                   읽음

@@ -2,11 +2,14 @@ import { AssetTransactionSchema, TransactionKind, TransactionStatus } from '../t
 
 interface AssetApiTransaction {
   id: string
-  type: 'purchase' | 'use' | 'share' | 'receive'
-  assetName: string
-  amount: number
-  date: string
-  status: 'completed' | 'pending' | 'failed' | 'refunded'
+  kind?: 'purchase' | 'use' | 'share' | 'receive' | 'transfer' | 'acquire'
+  type?: 'purchase' | 'use' | 'share' | 'receive'
+  assetName?: string
+  description?: string
+  amount?: number | null
+  date?: string
+  occurredAt?: string
+  status?: 'completed' | 'pending' | 'failed' | 'refunded'
   category?: string
   relatedUser?: string
   groupName?: string
@@ -31,14 +34,14 @@ export const normalizeAssetTransactions = (
 ): AssetTransactionSchema[] => {
   return items.map((item) => ({
     id: item.id,
-    kind: typeMap[item.type] ?? 'asset_purchase',
-    amount: item.amount,
-    occurredAt: item.date,
-    status: statusMap[item.status] ?? 'completed',
-    description: item.assetName,
+    kind: item.type ? typeMap[item.type] : item.kind === 'transfer' ? 'transfer' : 'asset_purchase',
+    amount: item.amount ?? 0,
+    occurredAt: item.date ?? item.occurredAt ?? new Date().toISOString(),
+    status: item.status ? statusMap[item.status] : 'completed',
+    description: item.assetName ?? item.description ?? '',
     category: item.category,
     details: {
-      assetName: item.assetName,
+      assetName: item.assetName ?? item.description ?? '',
       groupName: item.groupName,
       relatedUser: item.relatedUser,
       categoryLabel: item.category,

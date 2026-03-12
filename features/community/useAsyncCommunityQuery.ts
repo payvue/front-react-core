@@ -5,21 +5,21 @@ import { QUERY_COMMUNITY_KEY } from "@/components/context/community";
 import { fetchParticipatingGroups } from "./thunk";
 
 
-export const useAsyncCommunityQuery = (authenticated: () => (() => boolean), { isLoggedIn, hasIssue }: {isLoggedIn: boolean, hasIssue: boolean}) => {
+export const useAsyncCommunityQuery = (authenticated: () => (() => boolean), { isLoggedIn, hasIssue: _hasIssue }: {isLoggedIn: boolean, hasIssue: boolean}) => {
     
     const dispatch = useAppDispatch()
     const { info } = useCommunityAPI()
 
     const { refetch: fetch } = useQuery({
-        queryKey: [QUERY_COMMUNITY_KEY, isLoggedIn, hasIssue],
+        queryKey: [QUERY_COMMUNITY_KEY, isLoggedIn],
         queryFn: async () => {
             if(!authenticated()()) return
 
-            info().then(response => {
-                dispatch(fetchParticipatingGroups(response))
-            })
+            const response = await info()
+            await dispatch(fetchParticipatingGroups(response))
+            return response.data
         },
-        enabled: isLoggedIn && hasIssue
+        enabled: isLoggedIn
     })
 
     return {

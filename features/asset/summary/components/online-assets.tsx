@@ -1,60 +1,65 @@
-"use client"
+'use client'
 
-import { useEffect, useMemo, useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { useMemo, useState } from 'react'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
+} from '@/components/ui/dialog'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { Plus } from "lucide-react"
-import { useOnlineAssetsQuery } from "../hooks/useOnlineAssetsQuery"
-import { OnlineAssetModel } from "../model/online-asset"
-import OnlineAssetList from "./online-asset-list"
+} from '@/components/ui/select'
+import { Plus } from 'lucide-react'
+import { useOnlineAssetsQuery } from '../hooks/useOnlineAssetsQuery'
+import { useCreateOnlineAsset } from '../hooks/useCreateOnlineAsset'
+import { OnlineAssetModel } from '../model/online-asset'
+import OnlineAssetList from './online-asset-list'
+import AssetTransferDialog from '../../transfer/components/asset-transfer-dialog'
+import { useAppSelector } from '@/lib/redux/hooks'
+import { selectAssetItems } from '@/features/asset/store/selectors'
 
 const categoryOptions = [
-  { value: "gift", label: "기프트 카드" },
-  { value: "game", label: "게임" },
-  { value: "music", label: "음악" },
-  { value: "shopping", label: "쇼핑" },
-  { value: "cash", label: "캐시" },
-  { value: "mileage", label: "마일리지" },
+  { value: 'gift', label: '기프트 카드' },
+  { value: 'game', label: '게임' },
+  { value: 'music', label: '음악' },
+  { value: 'shopping', label: '쇼핑' },
+  { value: 'cash', label: '캐시' },
+  { value: 'mileage', label: '마일리지' },
 ] as const
 
-type CategoryOptionValue = (typeof categoryOptions)[number]["value"]
+type CategoryOptionValue = (typeof categoryOptions)[number]['value']
 
 export function OnlineAssets() {
-  const { assets, isLoading, isError, refetch } = useOnlineAssetsQuery()
-  const [items, setItems] = useState<OnlineAssetModel[]>([])
+  const { isLoading, isError, refetch } = useOnlineAssetsQuery()
+  const createAsset = useCreateOnlineAsset()
+  const items = useAppSelector(selectAssetItems)
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
+  const [isTransferDialogOpen, setIsTransferDialogOpen] = useState(false)
+  const [selectedAssetForTransfer, setSelectedAssetForTransfer] = useState<OnlineAssetModel | null>(
+    null,
+  )
   const [newAsset, setNewAsset] = useState({
-    name: "",
+    name: '',
     category: categoryOptions[0].value,
-    amount: "",
+    amount: '',
   })
-
-  useEffect(() => {
-    setItems(assets)
-  }, [assets])
 
   const showEmptyState = useMemo(
     () => items.length === 0 && !isLoading && !isError,
     [isError, isLoading, items.length],
   )
 
-  const handleAddAsset = () => {
+  const handleAddAsset = async () => {
     if (!newAsset.name || !newAsset.amount) {
       return
     }
@@ -65,19 +70,18 @@ export function OnlineAssets() {
       return
     }
 
-    const asset = OnlineAssetModel.fromResponse({
-      id: Date.now().toString(),
-      name: newAsset.name,
-      category: newAsset.category,
-      amount,
-      purchaseDate: new Date().toISOString(),
-      status: "active",
-      balance: amount,
-    })
-
-    setItems((prev) => [asset, ...prev])
-    setNewAsset({ name: "", category: categoryOptions[0].value, amount: "" })
-    setIsAddDialogOpen(false)
+    try {
+      await createAsset.mutateAsync({
+        name: newAsset.name,
+        category: newAsset.category,
+        amount,
+        status: 'active',
+      })
+      setNewAsset({ name: '', category: categoryOptions[0].value, amount: '' })
+      setIsAddDialogOpen(false)
+    } catch (error: any) {
+      alert(error?.message || '자산 추가에 실패했습니다.')
+    }
   }
 
   return (
@@ -139,8 +143,8 @@ export function OnlineAssets() {
                     onChange={(event) => setNewAsset({ ...newAsset, amount: event.target.value })}
                   />
                 </div>
-                <Button onClick={handleAddAsset} className="w-full">
-                  추가하기
+                <Button onClick={handleAddAsset} className="w-full" disabled={createAsset.isPending}>
+                  {createAsset.isPending ? '추가 중...' : '추가하기'}
                 </Button>
               </div>
             </DialogContent>
@@ -149,11 +153,26 @@ export function OnlineAssets() {
       </CardHeader>
       <CardContent>
         <OnlineAssetList
-          assets={items}
+          assets={items.map((item) => OnlineAssetModel.fromResponse(item))}
           isLoading={isLoading}
           isError={isError}
           showEmptyState={showEmptyState}
+          onTransferClick={(asset) => {
+            setSelectedAssetForTransfer(asset)
+            setIsTransferDialogOpen(true)
+          }}
         />
+
+        {selectedAssetForTransfer && (
+          <AssetTransferDialog
+            isOpen={isTransferDialogOpen}
+            onClose={() => {
+              setIsTransferDialogOpen(false)
+              setSelectedAssetForTransfer(null)
+            }}
+            asset={selectedAssetForTransfer}
+          />
+        )}
       </CardContent>
     </Card>
   )

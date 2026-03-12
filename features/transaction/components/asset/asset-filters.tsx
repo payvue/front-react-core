@@ -32,6 +32,7 @@ export function AssetFilters(props: TransactionFiltersRenderProps<AssetFiltersSt
             <SelectItem value="asset_use">사용</SelectItem>
             <SelectItem value="share">공유</SelectItem>
             <SelectItem value="receive">받음</SelectItem>
+            <SelectItem value="transfer">송금</SelectItem>
           </SelectContent>
         </Select>
         <Select

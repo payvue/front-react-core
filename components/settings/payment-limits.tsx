@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -9,35 +9,75 @@ import { Progress } from "@/components/ui/progress"
 import { Switch } from "@/components/ui/switch"
 import { AlertTriangle, Shield, TrendingUp } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import {
+  PaymentLimitsUpdatePayload,
+  usePaymentLimitsQuery,
+  useUpdatePaymentLimitsMutation,
+} from "@/features/account/hooks/usePaymentLimitsQuery"
 
 export function PaymentLimits() {
-  const [limits, setLimits] = useState({
-    dailyLimit: 500000,
-    monthlyLimit: 10000000,
-    enableDailyLimit: true,
-    enableMonthlyLimit: true,
-    enableNotifications: true,
-  })
+  const limitsQuery = usePaymentLimitsQuery()
+  const updateLimitsMutation = useUpdatePaymentLimitsMutation()
+  const [limits, setLimits] = useState<PaymentLimitsUpdatePayload | null>(null)
 
-  const [usage] = useState({
-    dailyUsed: 150000,
-    monthlyUsed: 3500000,
-  })
+  useEffect(() => {
+    if (!limitsQuery.data) return
 
-  const [isLoading, setIsLoading] = useState(false)
+    setLimits({
+      dailyLimit: limitsQuery.data.dailyLimit,
+      monthlyLimit: limitsQuery.data.monthlyLimit,
+      enableDailyLimit: limitsQuery.data.enableDailyLimit,
+      enableMonthlyLimit: limitsQuery.data.enableMonthlyLimit,
+      enableNotifications: limitsQuery.data.enableNotifications,
+    })
+  }, [limitsQuery.data])
 
   const handleSave = async () => {
-    setIsLoading(true)
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-    setIsLoading(false)
+    if (!limits) return
 
-    // Show success message (in real app, use toast)
-    alert("결제 한도가 성공적으로 업데이트되었습니다.")
+    try {
+      await updateLimitsMutation.mutateAsync(limits)
+      await limitsQuery.refetch()
+      alert("결제 한도가 성공적으로 업데이트되었습니다.")
+    } catch (error: any) {
+      alert(error?.message || "결제 한도 업데이트에 실패했습니다.")
+    }
   }
 
-  const dailyProgress = (usage.dailyUsed / limits.dailyLimit) * 100
-  const monthlyProgress = (usage.monthlyUsed / limits.monthlyLimit) * 100
+  const usage = useMemo(
+    () => ({
+      dailyUsed: limitsQuery.data?.dailyUsed ?? 0,
+      monthlyUsed: limitsQuery.data?.monthlyUsed ?? 0,
+    }),
+    [limitsQuery.data],
+  )
+
+  const safeDailyLimit = Math.max(1, limits?.dailyLimit ?? 1)
+  const safeMonthlyLimit = Math.max(1, limits?.monthlyLimit ?? 1)
+  const dailyProgress = (usage.dailyUsed / safeDailyLimit) * 100
+  const monthlyProgress = (usage.monthlyUsed / safeMonthlyLimit) * 100
+
+  if (!limits && limitsQuery.isLoading) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>결제 한도 설정</CardTitle>
+          <CardDescription>결제 한도 정보를 불러오는 중입니다.</CardDescription>
+        </CardHeader>
+      </Card>
+    )
+  }
+
+  if (!limits) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>결제 한도 설정</CardTitle>
+          <CardDescription>결제 한도 정보를 불러오지 못했습니다.</CardDescription>
+        </CardHeader>
+      </Card>
+    )
+  }
 
   return (
     <div className="space-y-6">
@@ -58,7 +98,9 @@ export function PaymentLimits() {
               </Label>
               <Switch
                 checked={limits.enableDailyLimit}
-                onCheckedChange={(checked) => setLimits((prev) => ({ ...prev, enableDailyLimit: checked }))}
+                onCheckedChange={(checked) =>
+                  setLimits((prev) => (prev ? { ...prev, enableDailyLimit: checked } : prev))
+                }
               />
             </div>
 
@@ -69,7 +111,9 @@ export function PaymentLimits() {
                     id="daily-limit"
                     type="number"
                     value={limits.dailyLimit}
-                    onChange={(e) => setLimits((prev) => ({ ...prev, dailyLimit: Number(e.target.value) }))}
+                    onChange={(e) =>
+                      setLimits((prev) => (prev ? { ...prev, dailyLimit: Number(e.target.value) } : prev))
+                    }
                     placeholder="일일 한도 (원)"
                   />
                   <div className="text-sm text-muted-foreground">
@@ -96,7 +140,9 @@ export function PaymentLimits() {
               </Label>
               <Switch
                 checked={limits.enableMonthlyLimit}
-                onCheckedChange={(checked) => setLimits((prev) => ({ ...prev, enableMonthlyLimit: checked }))}
+                onCheckedChange={(checked) =>
+                  setLimits((prev) => (prev ? { ...prev, enableMonthlyLimit: checked } : prev))
+                }
               />
             </div>
 
@@ -107,7 +153,9 @@ export function PaymentLimits() {
                     id="monthly-limit"
                     type="number"
                     value={limits.monthlyLimit}
-                    onChange={(e) => setLimits((prev) => ({ ...prev, monthlyLimit: Number(e.target.value) }))}
+                    onChange={(e) =>
+                      setLimits((prev) => (prev ? { ...prev, monthlyLimit: Number(e.target.value) } : prev))
+                    }
                     placeholder="월간 한도 (원)"
                   />
                   <div className="text-sm text-muted-foreground">
@@ -134,12 +182,18 @@ export function PaymentLimits() {
             </div>
             <Switch
               checked={limits.enableNotifications}
-              onCheckedChange={(checked) => setLimits((prev) => ({ ...prev, enableNotifications: checked }))}
+              onCheckedChange={(checked) =>
+                setLimits((prev) => (prev ? { ...prev, enableNotifications: checked } : prev))
+              }
             />
           </div>
 
-          <Button onClick={handleSave} disabled={isLoading} className="w-full">
-            {isLoading ? "저장 중..." : "설정 저장"}
+          <Button
+            onClick={handleSave}
+            disabled={limitsQuery.isLoading || updateLimitsMutation.isPending}
+            className="w-full"
+          >
+            {updateLimitsMutation.isPending ? "저장 중..." : "설정 저장"}
           </Button>
         </CardContent>
       </Card>

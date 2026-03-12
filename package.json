@@ -47,6 +47,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.0.0",
     "event-source-polyfill": "^1.0.31",
+    "framer-motion": "^11.18.2",
     "geist": "^1.5.1",
     "lodash": "^4.17.21",
     "lucide-react": "latest",
@@ -64,6 +65,7 @@
     "swiper": "^12.0.2",
     "tailwind-merge": "^2.5.5",
     "tailwindcss-animate": "latest",
+    "uuid": "^13.0.0",
     "zustand": "^4.5.0"
   },
   "devDependencies": {
