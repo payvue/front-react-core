@@ -1,0 +1,117 @@
+flowchart LR
+
+%% ==================================================
+%% User Context (Generic)
+%% ==================================================
+subgraph USER_CTX["User Context (Generic)"]
+    User["User\n(Aggregate Root)"]
+    Membership["Membership\n(Entity)"]
+    Role["Role\n(Value Object)"]
+
+    User --> Membership
+    Membership --> Role
+end
+
+%% ==================================================
+%% Community Context (Core)
+%% ==================================================
+subgraph COMMUNITY_CTX["Community Context (Core)"]
+    Community["Community\n(Aggregate Root)"]
+    CommunityPolicy["CommunityPolicy\n(Entity)"]
+    Decision["Decision\n(Entity)"]
+    AssetHolding["AssetHolding\n(Entity)"]
+
+    Community --> CommunityPolicy
+    CommunityPolicy --> Decision
+    Community --> AssetHolding
+end
+
+Membership -. "contextual role" .-> Community
+Membership --> Decision
+
+%% ==================================================
+%% Shared Asset Model (Shared Kernel)
+%% ==================================================
+subgraph ASSET_MODEL["Asset Model (Shared Kernel)"]
+    Asset["Asset\n(Abstract)"]
+    TransferableAsset["TransferableAsset\n(Capability Interface)"]
+    ExchangeableAsset["ExchangeableAsset\n(Capability Interface)"]
+
+    TransferableAsset -.-> Asset
+    ExchangeableAsset -.-> Asset
+end
+
+AssetHolding --> Asset
+
+%% ==================================================
+%% Asset Movement Context (Core)
+%% ==================================================
+subgraph ASSET_CTX["AssetMovement Context (Core)"]
+    AssetTx["AssetTransaction\n(Aggregate Root)"]
+
+    AssetDecision["AssetDecision\n(Entity)"]
+    AssetResult["AssetResult\n(Value Object)"]
+
+    TransferService["TransferService\n(Domain Service)"]
+    ExchangeService["ExchangeService\n(Domain Service)"]
+
+    AssetTx --> AssetDecision
+    AssetTx --> AssetResult
+
+    AssetTx -->|"delegates"| TransferService
+    AssetTx -->|"delegates"| ExchangeService
+end
+
+Decision -->|"requests"| AssetTx
+
+TransferService --> TransferableAsset
+ExchangeService --> ExchangeableAsset
+
+%% ==================================================
+%% Payment Context (Generic)
+%% ==================================================
+subgraph PAYMENT_CTX["Payment Context (Generic)"]
+    PaymentService["PaymentService"]
+    PaymentEvent["PaymentEvent\n(Domain Event)"]
+    PaymentHandler["PaymentEventHandler"]
+
+    PaymentService --> PaymentEvent
+    PaymentEvent --> PaymentHandler
+end
+
+%% ==================================================
+%% Payment Integration (ACL + Events)
+%% ==================================================
+TransferService -->|"requests payment"| PaymentService
+ExchangeService -->|"requests payment"| PaymentService
+
+PaymentEvent -. "handled by" .-> AssetTx
+
+%% ==================================================
+%% Result Propagation
+%% ==================================================
+AssetTx -. "applies result" .-> AssetHolding
+AssetTx -. "ownership change" .-> Community
+
+%% ==================================================
+%% Styling
+%% ==================================================
+classDef core fill:#ffeaea,stroke:#cc0000,stroke-width:2px
+classDef service fill:#fff5e6,stroke:#cc8800
+classDef asset fill:#e6fff5,stroke:#008866
+classDef generic fill:#eef1ff,stroke:#445
+
+Community:::core
+AssetTx:::core
+
+TransferService:::service
+ExchangeService:::service
+PaymentService:::service
+
+Asset:::asset
+TransferableAsset:::asset
+ExchangeableAsset:::asset
+
+User:::generic
+Membership:::generic
+PaymentEvent:::generic

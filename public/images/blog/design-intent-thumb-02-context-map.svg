@@ -1,0 +1,61 @@
+<svg width="1600" height="900" viewBox="0 0 1600 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="180" y1="90" x2="1480" y2="860" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F8F5FF"/>
+      <stop offset="0.55" stop-color="#F2ECFF"/>
+      <stop offset="1" stop-color="#ECE7FF"/>
+    </linearGradient>
+    <linearGradient id="strokeGrad" x1="384" y1="220" x2="1260" y2="700" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#8B5CF6" stop-opacity="0.76"/>
+      <stop offset="1" stop-color="#A78BFA" stop-opacity="0.35"/>
+    </linearGradient>
+    <filter id="shadow" x="-15%" y="-15%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="16" stdDeviation="18" flood-color="#7C3AED" flood-opacity="0.12"/>
+    </filter>
+    <marker id="arrow" markerWidth="11" markerHeight="11" refX="10" refY="5.5" orient="auto">
+      <path d="M0 0L11 5.5L0 11V0Z" fill="#8B5CF6" fill-opacity="0.65"/>
+    </marker>
+  </defs>
+
+  <rect width="1600" height="900" fill="url(#bg)"/>
+
+  <ellipse cx="1330" cy="120" rx="220" ry="100" fill="#C4B5FD" fill-opacity="0.35"/>
+  <ellipse cx="270" cy="790" rx="280" ry="120" fill="#DDD6FE" fill-opacity="0.55"/>
+
+  <rect x="160" y="118" width="1280" height="666" rx="34" fill="#FFFFFF" stroke="#DDD6FE" stroke-width="2" filter="url(#shadow)"/>
+
+  <text x="220" y="198" fill="#6D28D9" font-size="22" font-family="IBM Plex Sans KR, sans-serif" font-weight="700">Context Map</text>
+  <text x="220" y="232" fill="#6B7280" font-size="15" font-family="IBM Plex Sans KR, sans-serif">설계 의도를 경계와 협력으로 표현</text>
+
+  <rect x="228" y="280" width="382" height="200" rx="22" fill="#F6F2FF" stroke="#C4B5FD" stroke-width="2"/>
+  <text x="258" y="322" fill="#5B21B6" font-size="20" font-family="IBM Plex Sans KR, sans-serif" font-weight="600">Payment Context</text>
+  <text x="258" y="357" fill="#6B7280" font-size="14" font-family="IBM Plex Sans KR, sans-serif">Aggregate: Payment, Approval</text>
+  <rect x="258" y="378" width="322" height="72" rx="12" fill="#FFFFFF" stroke="#DDD6FE"/>
+  <text x="280" y="406" fill="#7C3AED" font-size="13" font-family="JetBrains Mono, monospace">command -&gt; policy -&gt; aggregate</text>
+  <text x="280" y="428" fill="#9CA3AF" font-size="12" font-family="JetBrains Mono, monospace">responsibility-driven collaboration</text>
+
+  <rect x="684" y="252" width="332" height="212" rx="22" fill="#F9F8FF" stroke="#C4B5FD" stroke-width="2"/>
+  <text x="714" y="296" fill="#5B21B6" font-size="20" font-family="IBM Plex Sans KR, sans-serif" font-weight="600">Anti-Corruption Layer</text>
+  <text x="714" y="332" fill="#6B7280" font-size="14" font-family="IBM Plex Sans KR, sans-serif">External Model Translation</text>
+  <rect x="714" y="352" width="272" height="84" rx="12" fill="#FFFFFF" stroke="#DDD6FE"/>
+  <text x="736" y="384" fill="#7C3AED" font-size="13" font-family="JetBrains Mono, monospace">map(externalEvent)</text>
+  <text x="736" y="407" fill="#7C3AED" font-size="13" font-family="JetBrains Mono, monospace">-&gt; internal language</text>
+
+  <rect x="1088" y="308" width="290" height="182" rx="22" fill="#F6F2FF" stroke="#C4B5FD" stroke-width="2"/>
+  <text x="1118" y="348" fill="#5B21B6" font-size="19" font-family="IBM Plex Sans KR, sans-serif" font-weight="600">Settlement Context</text>
+  <text x="1118" y="382" fill="#6B7280" font-size="14" font-family="IBM Plex Sans KR, sans-serif">Open Host Service</text>
+  <text x="1118" y="412" fill="#9CA3AF" font-size="13" font-family="IBM Plex Sans KR, sans-serif">event stream / contract</text>
+
+  <rect x="470" y="540" width="640" height="170" rx="20" fill="#FBFAFF" stroke="url(#strokeGrad)" stroke-width="2"/>
+  <text x="500" y="584" fill="#6D28D9" font-size="18" font-family="IBM Plex Sans KR, sans-serif" font-weight="600">설계 의도</text>
+  <text x="500" y="618" fill="#6B7280" font-size="15" font-family="IBM Plex Sans KR, sans-serif">클래스보다 협력, 데이터보다 책임, 구현보다 경계</text>
+  <text x="500" y="650" fill="#7C3AED" font-size="14" font-family="IBM Plex Sans KR, sans-serif">객체 간 메시지와 역할 분배가 코드 품질을 결정</text>
+
+  <path d="M610 380C648 380 652 358 684 358" stroke="#8B5CF6" stroke-opacity="0.7" stroke-width="2.5" marker-end="url(#arrow)"/>
+  <path d="M1016 358C1052 358 1054 398 1088 398" stroke="#8B5CF6" stroke-opacity="0.7" stroke-width="2.5" marker-end="url(#arrow)"/>
+  <path d="M850 464C850 498 850 512 850 540" stroke="#8B5CF6" stroke-opacity="0.6" stroke-width="2.5" marker-end="url(#arrow)"/>
+
+  <circle cx="302" cy="174" r="4" fill="#8B5CF6"/>
+  <circle cx="316" cy="174" r="4" fill="#C4B5FD"/>
+  <circle cx="330" cy="174" r="4" fill="#DDD6FE"/>
+</svg>

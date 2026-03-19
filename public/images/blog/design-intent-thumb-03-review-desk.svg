@@ -1,0 +1,68 @@
+<svg width="1600" height="900" viewBox="0 0 1600 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="deskBg" x1="210" y1="52" x2="1392" y2="872" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1E1B4B"/>
+      <stop offset="0.55" stop-color="#312E81"/>
+      <stop offset="1" stop-color="#111827"/>
+    </linearGradient>
+    <linearGradient id="screen" x1="450" y1="190" x2="1180" y2="680" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0F172A"/>
+      <stop offset="1" stop-color="#1F2937"/>
+    </linearGradient>
+    <linearGradient id="sticky" x1="1160" y1="300" x2="1368" y2="524" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F5F3FF"/>
+      <stop offset="1" stop-color="#EDE9FE"/>
+    </linearGradient>
+    <filter id="shadow" x="-15%" y="-15%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="16" stdDeviation="20" flood-color="#000000" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+
+  <rect width="1600" height="900" fill="url(#deskBg)"/>
+  <ellipse cx="220" cy="110" rx="180" ry="90" fill="#A78BFA" fill-opacity="0.32"/>
+  <ellipse cx="1385" cy="760" rx="260" ry="120" fill="#8B5CF6" fill-opacity="0.2"/>
+
+  <rect x="256" y="128" width="1088" height="656" rx="34" fill="#111827" fill-opacity="0.66" stroke="#A78BFA" stroke-opacity="0.3" filter="url(#shadow)"/>
+
+  <rect x="322" y="192" width="850" height="494" rx="20" fill="url(#screen)" stroke="#C4B5FD" stroke-opacity="0.36"/>
+  <rect x="322" y="192" width="850" height="46" rx="20" fill="#0B1220"/>
+  <circle cx="358" cy="215" r="6" fill="#A78BFA"/>
+  <circle cx="382" cy="215" r="6" fill="#DDD6FE"/>
+  <circle cx="406" cy="215" r="6" fill="#6D28D9"/>
+
+  <text x="354" y="280" fill="#C4B5FD" font-size="14" font-family="JetBrains Mono, monospace">// Design Intent Review</text>
+  <text x="354" y="315" fill="#E5E7EB" font-size="15" font-family="JetBrains Mono, monospace">interface PaymentPolicy {</text>
+  <text x="386" y="345" fill="#E5E7EB" font-size="15" font-family="JetBrains Mono, monospace">approve(command: Command): Aggregate</text>
+  <text x="354" y="375" fill="#E5E7EB" font-size="15" font-family="JetBrains Mono, monospace">}</text>
+
+  <rect x="346" y="414" width="802" height="2" fill="#374151"/>
+  <text x="354" y="458" fill="#D1D5DB" font-size="14" font-family="JetBrains Mono, monospace">Entry  →  Branch  →  End</text>
+
+  <rect x="354" y="488" width="252" height="148" rx="14" fill="#111827" stroke="#8B5CF6" stroke-opacity="0.45"/>
+  <text x="378" y="524" fill="#EDE9FE" font-size="16" font-family="IBM Plex Sans KR, sans-serif" font-weight="600">Bounded Context</text>
+  <text x="378" y="554" fill="#9CA3AF" font-size="13" font-family="IBM Plex Sans KR, sans-serif">Payment</text>
+  <text x="378" y="582" fill="#9CA3AF" font-size="13" font-family="IBM Plex Sans KR, sans-serif">정책과 책임 분리</text>
+
+  <rect x="640" y="488" width="252" height="148" rx="14" fill="#111827" stroke="#8B5CF6" stroke-opacity="0.45"/>
+  <text x="664" y="524" fill="#EDE9FE" font-size="16" font-family="IBM Plex Sans KR, sans-serif" font-weight="600">Aggregate</text>
+  <text x="664" y="554" fill="#9CA3AF" font-size="13" font-family="IBM Plex Sans KR, sans-serif">Approval Root</text>
+  <text x="664" y="582" fill="#9CA3AF" font-size="13" font-family="IBM Plex Sans KR, sans-serif">일관성 경계 유지</text>
+
+  <rect x="926" y="488" width="222" height="148" rx="14" fill="#111827" stroke="#8B5CF6" stroke-opacity="0.45"/>
+  <text x="950" y="524" fill="#EDE9FE" font-size="16" font-family="IBM Plex Sans KR, sans-serif" font-weight="600">Policy</text>
+  <text x="950" y="554" fill="#9CA3AF" font-size="13" font-family="IBM Plex Sans KR, sans-serif">ISP / DIP</text>
+  <text x="950" y="582" fill="#9CA3AF" font-size="13" font-family="IBM Plex Sans KR, sans-serif">확장 가능한 분기</text>
+
+  <rect x="1210" y="280" width="158" height="220" rx="14" fill="url(#sticky)" stroke="#DDD6FE"/>
+  <text x="1232" y="322" fill="#6D28D9" font-size="14" font-family="IBM Plex Sans KR, sans-serif" font-weight="700">Review Notes</text>
+  <text x="1232" y="352" fill="#4B5563" font-size="13" font-family="IBM Plex Sans KR, sans-serif">- 역할 중심 설계</text>
+  <text x="1232" y="378" fill="#4B5563" font-size="13" font-family="IBM Plex Sans KR, sans-serif">- 구현 은닉</text>
+  <text x="1232" y="404" fill="#4B5563" font-size="13" font-family="IBM Plex Sans KR, sans-serif">- 컨텍스트 경계</text>
+
+  <rect x="1222" y="530" width="146" height="124" rx="12" fill="#FDF4FF" stroke="#E9D5FF"/>
+  <text x="1242" y="566" fill="#7E22CE" font-size="13" font-family="IBM Plex Sans KR, sans-serif" font-weight="700">Object + DDD</text>
+  <text x="1242" y="592" fill="#6B7280" font-size="12" font-family="IBM Plex Sans KR, sans-serif">협업 언어 정렬</text>
+
+  <circle cx="1288" cy="248" r="36" fill="#C4B5FD" fill-opacity="0.25"/>
+  <rect x="1268" y="232" width="40" height="32" rx="8" fill="#DDD6FE"/>
+</svg>

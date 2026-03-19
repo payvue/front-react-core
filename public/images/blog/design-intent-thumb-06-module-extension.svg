@@ -1,0 +1,61 @@
+<svg width="1600" height="900" viewBox="0 0 1600 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="210" y1="60" x2="1390" y2="860" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F8F5FF"/>
+      <stop offset="0.58" stop-color="#F1EBFF"/>
+      <stop offset="1" stop-color="#ECE7FF"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="260" y1="230" x2="1200" y2="680" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#8B5CF6" stop-opacity="0.9"/>
+      <stop offset="1" stop-color="#A78BFA" stop-opacity="0.35"/>
+    </linearGradient>
+    <filter id="shadow" x="-12%" y="-12%" width="124%" height="124%">
+      <feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#7C3AED" flood-opacity="0.12"/>
+    </filter>
+    <marker id="arrow" markerWidth="11" markerHeight="11" refX="10" refY="5.5" orient="auto">
+      <path d="M0 0L11 5.5L0 11V0Z" fill="#8B5CF6" fill-opacity="0.74"/>
+    </marker>
+  </defs>
+
+  <rect width="1600" height="900" fill="url(#bg)"/>
+  <ellipse cx="1295" cy="118" rx="230" ry="94" fill="#DDD6FE" fill-opacity="0.74"/>
+  <ellipse cx="250" cy="790" rx="290" ry="115" fill="#E9D5FF" fill-opacity="0.4"/>
+
+  <rect x="170" y="110" width="1260" height="680" rx="34" fill="#FFFFFF" stroke="#DDD6FE" stroke-width="2" filter="url(#shadow)"/>
+
+  <text x="230" y="186" fill="#6D28D9" font-size="24" font-family="IBM Plex Sans KR, sans-serif" font-weight="700">Module Evolution Map</text>
+  <text x="230" y="220" fill="#6B7280" font-size="16" font-family="IBM Plex Sans KR, sans-serif">최소 정보 노출 + 수정/확장 용이성 확보</text>
+
+  <rect x="230" y="260" width="1140" height="144" rx="20" fill="#FBFAFF" stroke="url(#accent)" stroke-width="2"/>
+  <text x="260" y="304" fill="#5B21B6" font-size="18" font-family="IBM Plex Sans KR, sans-serif" font-weight="600">핵심 목표</text>
+  <text x="260" y="336" fill="#4B5563" font-size="14" font-family="IBM Plex Sans KR, sans-serif">모듈 사용자는 최소한의 정보만 알고도 모듈을 안정적으로 사용할 수 있어야 함</text>
+  <text x="260" y="364" fill="#6B7280" font-size="13" font-family="IBM Plex Sans KR, sans-serif">내부 구현 변경은 캡슐화하고, 확장 지점은 추상화로 열어둠</text>
+
+  <rect x="230" y="440" width="340" height="270" rx="20" fill="#FFFFFF" stroke="#C4B5FD" stroke-width="2"/>
+  <text x="258" y="480" fill="#7C3AED" font-size="17" font-family="IBM Plex Sans KR, sans-serif" font-weight="700">ISP</text>
+  <text x="258" y="508" fill="#4B5563" font-size="13" font-family="IBM Plex Sans KR, sans-serif">클라이언트별 인터페이스 분리</text>
+  <rect x="258" y="530" width="284" height="72" rx="12" fill="#F5F3FF" stroke="#DDD6FE"/>
+  <text x="278" y="559" fill="#6D28D9" font-size="12" font-family="IBM Plex Sans KR, sans-serif">Client A → Interface A</text>
+  <text x="278" y="583" fill="#6D28D9" font-size="12" font-family="IBM Plex Sans KR, sans-serif">Client B → Interface B</text>
+  <text x="258" y="636" fill="#6B7280" font-size="12" font-family="IBM Plex Sans KR, sans-serif">불필요한 의존 제거, 변경 파급 축소</text>
+
+  <rect x="630" y="440" width="340" height="270" rx="20" fill="#FFFFFF" stroke="#C4B5FD" stroke-width="2"/>
+  <text x="658" y="480" fill="#7C3AED" font-size="17" font-family="IBM Plex Sans KR, sans-serif" font-weight="700">DIP</text>
+  <text x="658" y="508" fill="#4B5563" font-size="13" font-family="IBM Plex Sans KR, sans-serif">상위 정책은 추상화에 의존</text>
+  <rect x="658" y="530" width="284" height="96" rx="12" fill="#F5F3FF" stroke="#DDD6FE"/>
+  <text x="676" y="559" fill="#6D28D9" font-size="12" font-family="IBM Plex Sans KR, sans-serif">Consumer → Policy(Abstraction)</text>
+  <text x="676" y="583" fill="#6D28D9" font-size="12" font-family="IBM Plex Sans KR, sans-serif">Implementation A / B ← Policy</text>
+  <line x1="676" y1="603" x2="910" y2="603" stroke="#8B5CF6" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="658" y="656" fill="#6B7280" font-size="12" font-family="IBM Plex Sans KR, sans-serif">구현 교체 시 상위 모듈 변경 최소화</text>
+
+  <rect x="1030" y="440" width="340" height="270" rx="20" fill="#FFFFFF" stroke="#C4B5FD" stroke-width="2"/>
+  <text x="1058" y="480" fill="#7C3AED" font-size="17" font-family="IBM Plex Sans KR, sans-serif" font-weight="700">Factory + Encapsulation</text>
+  <text x="1058" y="508" fill="#4B5563" font-size="13" font-family="IBM Plex Sans KR, sans-serif">생성과 초기화 로직 은닉</text>
+  <rect x="1058" y="530" width="284" height="72" rx="12" fill="#F5F3FF" stroke="#DDD6FE"/>
+  <text x="1078" y="559" fill="#6D28D9" font-size="12" font-family="IBM Plex Sans KR, sans-serif">new Concrete() 직접 노출 X</text>
+  <text x="1078" y="583" fill="#6D28D9" font-size="12" font-family="IBM Plex Sans KR, sans-serif">Factory.create()로 접근</text>
+  <text x="1058" y="636" fill="#6B7280" font-size="12" font-family="IBM Plex Sans KR, sans-serif">모듈 사용자는 최소 계약만 인지</text>
+
+  <path d="M570 574H630" stroke="#8B5CF6" stroke-width="2.5" marker-end="url(#arrow)"/>
+  <path d="M970 574H1030" stroke="#8B5CF6" stroke-width="2.5" marker-end="url(#arrow)"/>
+</svg>

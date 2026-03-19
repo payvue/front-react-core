@@ -1,0 +1,96 @@
+<svg width="1600" height="900" viewBox="0 0 1600 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="220" y1="60" x2="1420" y2="860" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F8F5FF"/>
+      <stop offset="0.56" stop-color="#F2ECFF"/>
+      <stop offset="1" stop-color="#ECE7FF"/>
+    </linearGradient>
+    <linearGradient id="panel" x1="180" y1="100" x2="1430" y2="800" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#FAF8FF"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="220" y1="250" x2="1180" y2="620" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#8B5CF6" stop-opacity="0.88"/>
+      <stop offset="1" stop-color="#A78BFA" stop-opacity="0.35"/>
+    </linearGradient>
+    <filter id="shadow" x="-12%" y="-12%" width="124%" height="124%">
+      <feDropShadow dx="0" dy="14" stdDeviation="16" flood-color="#7C3AED" flood-opacity="0.12"/>
+    </filter>
+    <marker id="arrow" markerWidth="11" markerHeight="11" refX="10" refY="5.5" orient="auto">
+      <path d="M0 0L11 5.5L0 11V0Z" fill="#8B5CF6" fill-opacity="0.74"/>
+    </marker>
+  </defs>
+
+  <rect width="1600" height="900" fill="url(#bg)"/>
+  <ellipse cx="1300" cy="120" rx="230" ry="96" fill="#DDD6FE" fill-opacity="0.75"/>
+  <ellipse cx="260" cy="790" rx="300" ry="120" fill="#E9D5FF" fill-opacity="0.38"/>
+
+  <rect x="160" y="104" width="1280" height="692" rx="34" fill="url(#panel)" stroke="#DDD6FE" stroke-width="2" filter="url(#shadow)"/>
+
+  <text x="220" y="186" fill="#6D28D9" font-size="24" font-family="IBM Plex Sans KR, sans-serif" font-weight="700">Object Collaboration + Context + Aggregate</text>
+  <text x="220" y="220" fill="#6B7280" font-size="16" font-family="IBM Plex Sans KR, sans-serif">핵심 라벨: 협력 · 책임 · 역할 · 경계 · 일관성</text>
+
+  <rect x="220" y="256" width="610" height="330" rx="22" fill="#FFFFFF" stroke="url(#accent)" stroke-width="2"/>
+  <text x="252" y="294" fill="#5B21B6" font-size="18" font-family="IBM Plex Sans KR, sans-serif" font-weight="600">객체 간 협력: 책임과 역할</text>
+
+  <rect x="252" y="324" width="120" height="72" rx="12" fill="#F5F3FF" stroke="#C4B5FD"/>
+  <text x="290" y="368" fill="#6D28D9" font-size="14" font-family="IBM Plex Sans KR, sans-serif" font-weight="600">Client</text>
+
+  <rect x="414" y="324" width="136" height="72" rx="12" fill="#F5F3FF" stroke="#C4B5FD"/>
+  <text x="435" y="352" fill="#6D28D9" font-size="13" font-family="IBM Plex Sans KR, sans-serif" font-weight="600">Message</text>
+  <text x="432" y="374" fill="#6B7280" font-size="12" font-family="IBM Plex Sans KR, sans-serif">의도 포함</text>
+
+  <rect x="592" y="324" width="164" height="72" rx="12" fill="#F5F3FF" stroke="#C4B5FD"/>
+  <text x="640" y="352" fill="#6D28D9" font-size="13" font-family="IBM Plex Sans KR, sans-serif" font-weight="600">Server</text>
+  <text x="621" y="373" fill="#6B7280" font-size="12" font-family="IBM Plex Sans KR, sans-serif">역할 수행 객체</text>
+
+  <path d="M372 360H414" stroke="#8B5CF6" stroke-width="2.5" marker-end="url(#arrow)"/>
+  <path d="M550 360H592" stroke="#8B5CF6" stroke-width="2.5" marker-end="url(#arrow)"/>
+
+  <rect x="252" y="426" width="504" height="126" rx="12" fill="#FBFAFF" stroke="#DDD6FE"/>
+  <text x="276" y="456" fill="#7C3AED" font-size="13" font-family="IBM Plex Sans KR, sans-serif" font-weight="700">역할(Role)</text>
+  <text x="276" y="478" fill="#4B5563" font-size="12" font-family="IBM Plex Sans KR, sans-serif">협력 안에서 객체가 차지하는 추상적 위치</text>
+  <text x="276" y="506" fill="#7C3AED" font-size="13" font-family="IBM Plex Sans KR, sans-serif" font-weight="700">책임(Responsibility)</text>
+  <text x="276" y="528" fill="#4B5563" font-size="12" font-family="IBM Plex Sans KR, sans-serif">메시지를 처리하고 결과를 보장해야 하는 행동</text>
+
+  <rect x="864" y="256" width="540" height="458" rx="22" fill="#FFFFFF" stroke="#C4B5FD" stroke-width="2"/>
+  <text x="896" y="294" fill="#5B21B6" font-size="18" font-family="IBM Plex Sans KR, sans-serif" font-weight="600">Bounded Context &amp; Aggregate</text>
+
+  <rect x="896" y="316" width="216" height="310" rx="16" fill="#F8F5FF" stroke="#C4B5FD" stroke-dasharray="6 6"/>
+  <text x="920" y="344" fill="#6D28D9" font-size="13" font-family="IBM Plex Sans KR, sans-serif" font-weight="700">Context A</text>
+  <text x="920" y="366" fill="#6B7280" font-size="11" font-family="IBM Plex Sans KR, sans-serif">Ubiquitous Language</text>
+
+  <rect x="920" y="386" width="168" height="108" rx="12" fill="#FFFFFF" stroke="#C4B5FD"/>
+  <text x="940" y="412" fill="#7C3AED" font-size="12" font-family="IBM Plex Sans KR, sans-serif" font-weight="700">Aggregate A1</text>
+  <text x="940" y="432" fill="#4B5563" font-size="11" font-family="IBM Plex Sans KR, sans-serif">Root</text>
+  <text x="940" y="450" fill="#6B7280" font-size="11" font-family="IBM Plex Sans KR, sans-serif">Entity / VO</text>
+
+  <rect x="920" y="510" width="168" height="96" rx="12" fill="#FFFFFF" stroke="#C4B5FD"/>
+  <text x="940" y="536" fill="#7C3AED" font-size="12" font-family="IBM Plex Sans KR, sans-serif" font-weight="700">Aggregate A2</text>
+  <text x="940" y="556" fill="#4B5563" font-size="11" font-family="IBM Plex Sans KR, sans-serif">Root</text>
+  <text x="940" y="574" fill="#6B7280" font-size="11" font-family="IBM Plex Sans KR, sans-serif">Entity / VO</text>
+
+  <rect x="1188" y="316" width="184" height="310" rx="16" fill="#F8F5FF" stroke="#C4B5FD" stroke-dasharray="6 6"/>
+  <text x="1210" y="344" fill="#6D28D9" font-size="13" font-family="IBM Plex Sans KR, sans-serif" font-weight="700">Context B</text>
+  <text x="1210" y="366" fill="#6B7280" font-size="11" font-family="IBM Plex Sans KR, sans-serif">Ubiquitous Language</text>
+
+  <rect x="1210" y="386" width="140" height="108" rx="12" fill="#FFFFFF" stroke="#C4B5FD"/>
+  <text x="1228" y="412" fill="#7C3AED" font-size="12" font-family="IBM Plex Sans KR, sans-serif" font-weight="700">Aggregate B1</text>
+  <text x="1228" y="432" fill="#4B5563" font-size="11" font-family="IBM Plex Sans KR, sans-serif">Root</text>
+  <text x="1228" y="450" fill="#6B7280" font-size="11" font-family="IBM Plex Sans KR, sans-serif">Entity / VO</text>
+
+  <rect x="1210" y="510" width="140" height="96" rx="12" fill="#FFFFFF" stroke="#C4B5FD"/>
+  <text x="1228" y="536" fill="#7C3AED" font-size="12" font-family="IBM Plex Sans KR, sans-serif" font-weight="700">Aggregate B2</text>
+  <text x="1228" y="556" fill="#4B5563" font-size="11" font-family="IBM Plex Sans KR, sans-serif">Root</text>
+  <text x="1228" y="574" fill="#6B7280" font-size="11" font-family="IBM Plex Sans KR, sans-serif">Entity / VO</text>
+
+  <line x1="1088" y1="440" x2="1210" y2="440" stroke="#8B5CF6" stroke-width="2.5" marker-end="url(#arrow)"/>
+  <text x="1096" y="422" fill="#7C3AED" font-size="11" font-family="IBM Plex Sans KR, sans-serif" font-weight="700">Root ↔ Root</text>
+
+  <line x1="1088" y1="552" x2="1210" y2="552" stroke="#D1D5DB" stroke-width="2" stroke-dasharray="4 4"/>
+  <text x="1146" y="546" fill="#9CA3AF" font-size="18" font-family="IBM Plex Sans KR, sans-serif" font-weight="700">×</text>
+  <text x="1092" y="574" fill="#6B7280" font-size="11" font-family="IBM Plex Sans KR, sans-serif">비-루트 간 직접 소통 지양</text>
+
+  <rect x="864" y="736" width="540" height="48" rx="12" fill="#FBFAFF" stroke="#DDD6FE"/>
+  <text x="886" y="766" fill="#4B5563" font-size="12" font-family="IBM Plex Sans KR, sans-serif">컨텍스트 간 소통은 루트 애그리게이트를 통해 경계를 유지하며 진행</text>
+</svg>

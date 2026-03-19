@@ -4,7 +4,16 @@ import { useState, useEffect, useRef } from 'react'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { NotificationCenter } from '@/components/notifications/notification-center'
-import { Settings, LogOut, CreditCard, Package, BarChart3, Users, ShoppingBag } from 'lucide-react'
+import {
+  Settings,
+  LogOut,
+  CreditCard,
+  Package,
+  BarChart3,
+  Users,
+  ShoppingBag,
+  BookOpen,
+} from 'lucide-react'
 import Link from 'next/link'
 import { useAppSelector } from '@/lib/redux/hooks'
 import { AvatarImage } from '@radix-ui/react-avatar'
@@ -73,6 +82,9 @@ export function DashboardHeader() {
           <Link href="/smartstore" className="text-sm font-medium hover:text-primary">
             스마트 스토어
           </Link>
+          <Link href="/blog" className="text-sm font-medium hover:text-primary">
+            블로그
+          </Link>
         </nav>
 
         <div className="flex items-center gap-4">
@@ -131,6 +143,13 @@ export function DashboardHeader() {
                   >
                     <ShoppingBag className="mr-2 h-4 w-4" />
                     쇼핑
+                  </Link>
+                  <Link
+                    href="/blog"
+                    className="flex items-center px-4 py-2 text-sm hover:bg-gray-100"
+                  >
+                    <BookOpen className="mr-2 h-4 w-4" />
+                    블로그
                   </Link>
                   <Link
                     href="/settings"

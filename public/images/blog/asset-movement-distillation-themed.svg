@@ -1,0 +1,125 @@
+<svg width="1600" height="900" viewBox="0 0 1600 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="210" y1="60" x2="1390" y2="860" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F8F5FF"/>
+      <stop offset="0.58" stop-color="#F1EBFF"/>
+      <stop offset="1" stop-color="#ECE7FF"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="250" y1="210" x2="1200" y2="700" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#8B5CF6" stop-opacity="0.88"/>
+      <stop offset="1" stop-color="#A78BFA" stop-opacity="0.32"/>
+    </linearGradient>
+    <filter id="shadow" x="-12%" y="-12%" width="124%" height="124%">
+      <feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#7C3AED" flood-opacity="0.12"/>
+    </filter>
+    <marker id="arrow" markerWidth="11" markerHeight="11" refX="10" refY="5.5" orient="auto">
+      <path d="M0 0L11 5.5L0 11V0Z" fill="#8B5CF6" fill-opacity="0.8"/>
+    </marker>
+    <marker id="arrowMuted" markerWidth="11" markerHeight="11" refX="10" refY="5.5" orient="auto">
+      <path d="M0 0L11 5.5L0 11V0Z" fill="#6B7280" fill-opacity="0.8"/>
+    </marker>
+  </defs>
+
+  <rect width="1600" height="900" fill="url(#bg)"/>
+  <ellipse cx="1295" cy="118" rx="230" ry="94" fill="#DDD6FE" fill-opacity="0.72"/>
+  <ellipse cx="250" cy="790" rx="290" ry="115" fill="#E9D5FF" fill-opacity="0.38"/>
+
+  <rect x="120" y="92" width="1360" height="720" rx="34" fill="#FFFFFF" stroke="#DDD6FE" stroke-width="2" filter="url(#shadow)"/>
+
+  <text x="180" y="166" fill="#6D28D9" font-size="24" font-family="IBM Plex Sans KR, sans-serif" font-weight="700">Asset Movement Distillation</text>
+  <text x="180" y="198" fill="#6B7280" font-size="16" font-family="IBM Plex Sans KR, sans-serif">컨텍스트 경계를 분리하고 의존성 방향을 단순화해 핵심 책임을 드러낸 모델</text>
+
+  <rect x="170" y="222" width="1260" height="96" rx="18" fill="#FBFAFF" stroke="url(#accent)" stroke-width="2"/>
+  <text x="200" y="260" fill="#5B21B6" font-size="18" font-family="IBM Plex Sans KR, sans-serif" font-weight="600">Distillation 포인트</text>
+  <text x="200" y="288" fill="#4B5563" font-size="14" font-family="IBM Plex Sans KR, sans-serif">Core는 중앙에 집중, Shared/Generic은 우측 협력 컨텍스트로 분리, 요청은 좌→우·피드백은 점선으로 구분</text>
+
+  <rect x="170" y="350" width="340" height="392" rx="20" fill="#FBFAFF" stroke="#C4B5FD" stroke-width="2"/>
+  <text x="196" y="384" fill="#7C3AED" font-size="16" font-family="IBM Plex Sans KR, sans-serif" font-weight="700">입력 컨텍스트</text>
+
+  <rect x="194" y="404" width="292" height="138" rx="14" fill="#EEF1FF" stroke="#445" stroke-width="1.6"/>
+  <text x="214" y="434" fill="#374151" font-size="14" font-family="IBM Plex Sans KR, sans-serif" font-weight="700">User Context (Generic)</text>
+  <rect x="214" y="448" width="252" height="34" rx="8" fill="#FFFFFF" stroke="#445"/>
+  <text x="230" y="470" fill="#374151" font-size="12" font-family="IBM Plex Sans KR, sans-serif">User (AR)</text>
+  <rect x="214" y="490" width="252" height="34" rx="8" fill="#FFFFFF" stroke="#445"/>
+  <text x="230" y="512" fill="#374151" font-size="12" font-family="IBM Plex Sans KR, sans-serif">Membership / Role</text>
+
+  <rect x="194" y="560" width="292" height="162" rx="14" fill="#FFEAEA" stroke="#CC0000" stroke-width="1.7"/>
+  <text x="214" y="590" fill="#991B1B" font-size="14" font-family="IBM Plex Sans KR, sans-serif" font-weight="700">Community Context (Core)</text>
+  <rect x="214" y="604" width="252" height="30" rx="8" fill="#FFFFFF" stroke="#CC0000"/>
+  <text x="230" y="624" fill="#991B1B" font-size="12" font-family="IBM Plex Sans KR, sans-serif">Community (AR) / Policy</text>
+  <rect x="214" y="640" width="252" height="30" rx="8" fill="#FFFFFF" stroke="#CC0000"/>
+  <text x="230" y="660" fill="#991B1B" font-size="12" font-family="IBM Plex Sans KR, sans-serif">Decision</text>
+  <rect x="214" y="676" width="252" height="30" rx="8" fill="#FFFFFF" stroke="#CC0000"/>
+  <text x="230" y="696" fill="#991B1B" font-size="12" font-family="IBM Plex Sans KR, sans-serif">AssetHolding</text>
+
+  <rect x="550" y="350" width="500" height="392" rx="20" fill="#FFEAEA" stroke="#CC0000" stroke-width="2"/>
+  <text x="580" y="384" fill="#991B1B" font-size="16" font-family="IBM Plex Sans KR, sans-serif" font-weight="700">AssetMovement Context (Core)</text>
+
+  <rect x="580" y="404" width="440" height="50" rx="10" fill="#FFFFFF" stroke="#CC0000" stroke-width="1.6"/>
+  <text x="600" y="435" fill="#991B1B" font-size="14" font-family="IBM Plex Sans KR, sans-serif" font-weight="700">AssetTransaction (Aggregate Root)</text>
+
+  <rect x="580" y="476" width="210" height="64" rx="10" fill="#FFFFFF" stroke="#CC0000" stroke-width="1.5"/>
+  <text x="602" y="512" fill="#991B1B" font-size="13" font-family="IBM Plex Sans KR, sans-serif" font-weight="700">AssetDecision</text>
+  <rect x="810" y="476" width="210" height="64" rx="10" fill="#FFFFFF" stroke="#CC0000" stroke-width="1.5"/>
+  <text x="836" y="512" fill="#991B1B" font-size="13" font-family="IBM Plex Sans KR, sans-serif" font-weight="700">AssetResult</text>
+
+  <rect x="580" y="566" width="210" height="108" rx="10" fill="#FFF5E6" stroke="#CC8800" stroke-width="1.6"/>
+  <text x="602" y="600" fill="#9A4E00" font-size="13" font-family="IBM Plex Sans KR, sans-serif" font-weight="700">TransferService</text>
+  <text x="602" y="622" fill="#A16207" font-size="12" font-family="IBM Plex Sans KR, sans-serif">전송 규칙 위임</text>
+  <text x="602" y="642" fill="#A16207" font-size="12" font-family="IBM Plex Sans KR, sans-serif">결제 요청</text>
+
+  <rect x="810" y="566" width="210" height="108" rx="10" fill="#FFF5E6" stroke="#CC8800" stroke-width="1.6"/>
+  <text x="832" y="600" fill="#9A4E00" font-size="13" font-family="IBM Plex Sans KR, sans-serif" font-weight="700">ExchangeService</text>
+  <text x="832" y="622" fill="#A16207" font-size="12" font-family="IBM Plex Sans KR, sans-serif">교환 규칙 위임</text>
+  <text x="832" y="642" fill="#A16207" font-size="12" font-family="IBM Plex Sans KR, sans-serif">결제 요청</text>
+
+  <rect x="1090" y="350" width="340" height="392" rx="20" fill="#FBFAFF" stroke="#C4B5FD" stroke-width="2"/>
+  <text x="1116" y="384" fill="#7C3AED" font-size="16" font-family="IBM Plex Sans KR, sans-serif" font-weight="700">협력 컨텍스트</text>
+
+  <rect x="1114" y="404" width="292" height="138" rx="14" fill="#E6FFF5" stroke="#008866" stroke-width="1.6"/>
+  <text x="1134" y="434" fill="#065F46" font-size="14" font-family="IBM Plex Sans KR, sans-serif" font-weight="700">Asset Model (Shared Kernel)</text>
+  <rect x="1134" y="448" width="252" height="34" rx="8" fill="#FFFFFF" stroke="#008866"/>
+  <text x="1150" y="470" fill="#065F46" font-size="12" font-family="IBM Plex Sans KR, sans-serif">Asset</text>
+  <rect x="1134" y="490" width="252" height="34" rx="8" fill="#FFFFFF" stroke="#008866"/>
+  <text x="1150" y="512" fill="#065F46" font-size="12" font-family="IBM Plex Sans KR, sans-serif">Transferable / Exchangeable</text>
+
+  <rect x="1114" y="560" width="292" height="162" rx="14" fill="#EEF1FF" stroke="#445" stroke-width="1.6"/>
+  <text x="1134" y="590" fill="#374151" font-size="14" font-family="IBM Plex Sans KR, sans-serif" font-weight="700">Payment Context (Generic)</text>
+  <rect x="1134" y="604" width="252" height="30" rx="8" fill="#FFF5E6" stroke="#CC8800"/>
+  <text x="1150" y="624" fill="#9A4E00" font-size="12" font-family="IBM Plex Sans KR, sans-serif">PaymentService</text>
+  <rect x="1134" y="640" width="252" height="30" rx="8" fill="#FFFFFF" stroke="#445"/>
+  <text x="1150" y="660" fill="#374151" font-size="12" font-family="IBM Plex Sans KR, sans-serif">PaymentEvent / Handler</text>
+
+  <path d="M340 524V640" stroke="#8B5CF6" stroke-width="2.2" stroke-dasharray="4 4" marker-end="url(#arrow)"/>
+  <text x="352" y="586" fill="#6B7280" font-size="11" font-family="IBM Plex Sans KR, sans-serif">contextual role</text>
+
+  <path d="M486 655H580" stroke="#8B5CF6" stroke-width="2.4" marker-end="url(#arrow)"/>
+  <text x="506" y="646" fill="#6B7280" font-size="11" font-family="IBM Plex Sans KR, sans-serif">requests</text>
+
+  <path d="M800 454V476" stroke="#8B5CF6" stroke-width="2.4" marker-end="url(#arrow)"/>
+  <path d="M685 540V566" stroke="#8B5CF6" stroke-width="2.4" marker-end="url(#arrow)"/>
+  <path d="M915 540V566" stroke="#8B5CF6" stroke-width="2.4" marker-end="url(#arrow)"/>
+
+  <path d="M790 620H900V466H1114" stroke="#8B5CF6" stroke-width="2.2" fill="none" marker-end="url(#arrow)"/>
+  <path d="M1020 620H1060V510H1114" stroke="#8B5CF6" stroke-width="2.2" fill="none" marker-end="url(#arrow)"/>
+  <text x="930" y="456" fill="#6B7280" font-size="11" font-family="IBM Plex Sans KR, sans-serif">shared contract</text>
+
+  <path d="M790 648H940V619H1114" stroke="#8B5CF6" stroke-width="2.2" fill="none" marker-end="url(#arrow)"/>
+  <path d="M1020 648H1060V655H1114" stroke="#8B5CF6" stroke-width="2.2" fill="none" marker-end="url(#arrow)"/>
+  <text x="950" y="610" fill="#6B7280" font-size="11" font-family="IBM Plex Sans KR, sans-serif">requests payment</text>
+
+  <path d="M1134 655H980V706H760V454" stroke="#6B7280" stroke-width="2" stroke-dasharray="5 4" fill="none" marker-end="url(#arrowMuted)"/>
+  <text x="986" y="697" fill="#6B7280" font-size="11" font-family="IBM Plex Sans KR, sans-serif">event feedback</text>
+
+  <rect x="170" y="762" width="1260" height="36" rx="10" fill="#F5F3FF" stroke="#DDD6FE"/>
+  <rect x="190" y="772" width="12" height="12" rx="3" fill="#FFEAEA" stroke="#CC0000"/>
+  <text x="210" y="782" fill="#6B7280" font-size="11" font-family="IBM Plex Sans KR, sans-serif">Core</text>
+  <rect x="270" y="772" width="12" height="12" rx="3" fill="#E6FFF5" stroke="#008866"/>
+  <text x="290" y="782" fill="#6B7280" font-size="11" font-family="IBM Plex Sans KR, sans-serif">Shared Kernel</text>
+  <rect x="404" y="772" width="12" height="12" rx="3" fill="#EEF1FF" stroke="#445"/>
+  <text x="424" y="782" fill="#6B7280" font-size="11" font-family="IBM Plex Sans KR, sans-serif">Generic</text>
+  <rect x="502" y="772" width="12" height="12" rx="3" fill="#FFF5E6" stroke="#CC8800"/>
+  <text x="522" y="782" fill="#6B7280" font-size="11" font-family="IBM Plex Sans KR, sans-serif">Service</text>
+  <text x="634" y="782" fill="#6B7280" font-size="11" font-family="IBM Plex Sans KR, sans-serif">실선: 요청/의존 (좌→우)</text>
+  <text x="820" y="782" fill="#6B7280" font-size="11" font-family="IBM Plex Sans KR, sans-serif">점선: 이벤트/피드백 (우→좌)</text>
+</svg>

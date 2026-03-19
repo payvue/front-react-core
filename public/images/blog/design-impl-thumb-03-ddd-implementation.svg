@@ -1,0 +1,107 @@
+<svg width="1600" height="900" viewBox="0 0 1600 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="180" y1="60" x2="1420" y2="860" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F8F5FF"/>
+      <stop offset="0.58" stop-color="#F1EBFF"/>
+      <stop offset="1" stop-color="#ECE7FF"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="260" y1="230" x2="1330" y2="700" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#8B5CF6" stop-opacity="0.9"/>
+      <stop offset="1" stop-color="#A78BFA" stop-opacity="0.28"/>
+    </linearGradient>
+    <filter id="shadow" x="-12%" y="-12%" width="124%" height="124%">
+      <feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#7C3AED" flood-opacity="0.12"/>
+    </filter>
+    <marker id="arrow" markerWidth="6" markerHeight="6" refX="5.3" refY="3" orient="auto">
+      <path d="M0 0L6 3L0 6V0Z" fill="#7C3AED" fill-opacity="0.88"/>
+    </marker>
+    <marker id="arrowMuted" markerWidth="6" markerHeight="6" refX="5.3" refY="3" orient="auto">
+      <path d="M0 0L6 3L0 6V0Z" fill="#6B7280" fill-opacity="0.78"/>
+    </marker>
+  </defs>
+
+  <rect width="1600" height="900" fill="url(#bg)"/>
+  <ellipse cx="1280" cy="120" rx="228" ry="92" fill="#DDD6FE" fill-opacity="0.72"/>
+  <ellipse cx="260" cy="792" rx="294" ry="116" fill="#E9D5FF" fill-opacity="0.35"/>
+
+  <rect x="120" y="88" width="1360" height="724" rx="34" fill="#FFFFFF" stroke="#DDD6FE" stroke-width="2" filter="url(#shadow)"/>
+
+  <text x="178" y="160" fill="#6D28D9" font-size="30" font-family="IBM Plex Sans KR, sans-serif" font-weight="700">Implementation</text>
+  <text x="178" y="198" fill="#5B21B6" font-size="34" font-family="IBM Plex Sans KR, sans-serif" font-weight="800">[구현] DDD</text>
+  <text x="178" y="230" fill="#6B7280" font-size="16" font-family="IBM Plex Sans KR, sans-serif">도메인 개념 모델이 코드에서 어떻게 구현되고, 실행 컨텍스트 협력으로 이어지는지 표현</text>
+
+  <rect x="170" y="250" width="1260" height="88" rx="18" fill="#FBFAFF" stroke="url(#accent)" stroke-width="2"/>
+  <text x="198" y="286" fill="#5B21B6" font-size="18" font-family="IBM Plex Sans KR, sans-serif" font-weight="600">Execution Context View</text>
+  <text x="198" y="314" fill="#4B5563" font-size="14" font-family="IBM Plex Sans KR, sans-serif">Concept Model → Code Structure → Collaboration Flow</text>
+
+  <rect x="170" y="360" width="360" height="400" rx="20" fill="#F9FAFF" stroke="#C4B5FD" stroke-width="2"/>
+  <text x="198" y="398" fill="#6D28D9" font-size="17" font-family="IBM Plex Sans KR, sans-serif" font-weight="700">Domain Concepts</text>
+
+  <rect x="198" y="424" width="304" height="88" rx="12" fill="#FFEAEA" stroke="#CC0000" stroke-width="1.6"/>
+  <text x="220" y="455" fill="#991B1B" font-size="14" font-family="IBM Plex Sans KR, sans-serif" font-weight="700">Aggregate Root</text>
+  <text x="220" y="478" fill="#7F1D1D" font-size="12" font-family="IBM Plex Sans KR, sans-serif">경계/불변식 유지</text>
+  <text x="220" y="498" fill="#7F1D1D" font-size="12" font-family="IBM Plex Sans KR, sans-serif">예: Community, Transaction</text>
+
+  <rect x="198" y="530" width="304" height="88" rx="12" fill="#EEF1FF" stroke="#445" stroke-width="1.6"/>
+  <text x="220" y="561" fill="#374151" font-size="14" font-family="IBM Plex Sans KR, sans-serif" font-weight="700">Entity / Value Object</text>
+  <text x="220" y="584" fill="#374151" font-size="12" font-family="IBM Plex Sans KR, sans-serif">상태/식별성/값 의미 표현</text>
+  <text x="220" y="604" fill="#374151" font-size="12" font-family="IBM Plex Sans KR, sans-serif">정책과 책임을 코드로 고정</text>
+
+  <rect x="198" y="636" width="304" height="88" rx="12" fill="#FFF9E6" stroke="#FF9800" stroke-width="1.6"/>
+  <text x="220" y="667" fill="#9A4E00" font-size="14" font-family="IBM Plex Sans KR, sans-serif" font-weight="700">Repository / Factory</text>
+  <text x="220" y="690" fill="#9A4E00" font-size="12" font-family="IBM Plex Sans KR, sans-serif">생성/조회/영속성 경계</text>
+  <text x="220" y="710" fill="#9A4E00" font-size="12" font-family="IBM Plex Sans KR, sans-serif">외부 의존을 도메인 언어로 정리</text>
+
+  <rect x="570" y="360" width="460" height="400" rx="20" fill="#F5F3FF" stroke="#A78BFA" stroke-width="2"/>
+  <text x="598" y="398" fill="#6D28D9" font-size="17" font-family="IBM Plex Sans KR, sans-serif" font-weight="700">Code Collaboration Flow</text>
+
+  <rect x="598" y="430" width="404" height="66" rx="12" fill="#FFFFFF" stroke="#A78BFA"/>
+  <text x="620" y="457" fill="#5B21B6" font-size="14" font-family="IBM Plex Sans KR, sans-serif" font-weight="700">Intent / Command</text>
+  <text x="620" y="477" fill="#6B7280" font-size="12" font-family="IBM Plex Sans KR, sans-serif">요청 의도와 입력을 명시</text>
+
+  <rect x="598" y="514" width="404" height="66" rx="12" fill="#FFFFFF" stroke="#A78BFA"/>
+  <text x="620" y="541" fill="#5B21B6" font-size="14" font-family="IBM Plex Sans KR, sans-serif" font-weight="700">Application Service / Flow</text>
+  <text x="620" y="561" fill="#6B7280" font-size="12" font-family="IBM Plex Sans KR, sans-serif">실행 컨텍스트 조립과 단계 orchestration</text>
+
+  <rect x="598" y="598" width="404" height="66" rx="12" fill="#FFFFFF" stroke="#A78BFA"/>
+  <text x="620" y="625" fill="#5B21B6" font-size="14" font-family="IBM Plex Sans KR, sans-serif" font-weight="700">Domain Service / Aggregate</text>
+  <text x="620" y="645" fill="#6B7280" font-size="12" font-family="IBM Plex Sans KR, sans-serif">규칙 검증과 상태 전이 수행</text>
+
+  <rect x="598" y="682" width="404" height="66" rx="12" fill="#FFFFFF" stroke="#A78BFA"/>
+  <text x="620" y="709" fill="#5B21B6" font-size="14" font-family="IBM Plex Sans KR, sans-serif" font-weight="700">Repository / Event / Infra</text>
+  <text x="620" y="729" fill="#6B7280" font-size="12" font-family="IBM Plex Sans KR, sans-serif">결과 저장, 후속 이벤트, 외부 연동</text>
+
+  <path d="M800 496V514" stroke="#7C3AED" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M800 580V598" stroke="#7C3AED" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M800 664V682" stroke="#7C3AED" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="1070" y="360" width="360" height="400" rx="20" fill="#F9FAFF" stroke="#C4B5FD" stroke-width="2"/>
+  <text x="1098" y="398" fill="#6D28D9" font-size="17" font-family="IBM Plex Sans KR, sans-serif" font-weight="700">Execution Context</text>
+
+  <rect x="1098" y="424" width="304" height="94" rx="12" fill="#FFFFFF" stroke="#A78BFA"/>
+  <text x="1120" y="455" fill="#5B21B6" font-size="14" font-family="IBM Plex Sans KR, sans-serif" font-weight="700">Context</text>
+  <text x="1120" y="478" fill="#6B7280" font-size="12" font-family="IBM Plex Sans KR, sans-serif">중간 상태를 누적/전달</text>
+  <text x="1120" y="498" fill="#6B7280" font-size="12" font-family="IBM Plex Sans KR, sans-serif">단계 간 일관된 규약 유지</text>
+
+  <rect x="1098" y="536" width="304" height="94" rx="12" fill="#FFFFFF" stroke="#A78BFA"/>
+  <text x="1120" y="567" fill="#5B21B6" font-size="14" font-family="IBM Plex Sans KR, sans-serif" font-weight="700">Flow</text>
+  <text x="1120" y="590" fill="#6B7280" font-size="12" font-family="IBM Plex Sans KR, sans-serif">단계별 책임을 명시적으로 연결</text>
+  <text x="1120" y="610" fill="#6B7280" font-size="12" font-family="IBM Plex Sans KR, sans-serif">협력 구조를 코드에서 가시화</text>
+
+  <rect x="1098" y="648" width="304" height="94" rx="12" fill="#FFFFFF" stroke="#A78BFA"/>
+  <text x="1120" y="679" fill="#5B21B6" font-size="14" font-family="IBM Plex Sans KR, sans-serif" font-weight="700">Outcome</text>
+  <text x="1120" y="702" fill="#6B7280" font-size="12" font-family="IBM Plex Sans KR, sans-serif">루트 애그리게이트 중심 결과 수렴</text>
+  <text x="1120" y="722" fill="#6B7280" font-size="12" font-family="IBM Plex Sans KR, sans-serif">다음 유스케이스 입력으로 연결</text>
+
+  <path d="M530 556H570" stroke="#7C3AED" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M1030 556H1070" stroke="#7C3AED" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <path d="M1210 518V536" stroke="#6B7280" stroke-width="1.8" stroke-dasharray="4 4" marker-end="url(#arrowMuted)"/>
+  <path d="M1210 630V648" stroke="#6B7280" stroke-width="1.8" stroke-dasharray="4 4" marker-end="url(#arrowMuted)"/>
+
+  <rect x="170" y="780" width="1260" height="34" rx="10" fill="#F5F3FF" stroke="#DDD6FE"/>
+  <text x="198" y="802" fill="#6B7280" font-size="11" font-family="IBM Plex Sans KR, sans-serif">좌측: 도메인 개념 모델</text>
+  <text x="360" y="802" fill="#6B7280" font-size="11" font-family="IBM Plex Sans KR, sans-serif">중앙: 코드 협력 흐름</text>
+  <text x="512" y="802" fill="#6B7280" font-size="11" font-family="IBM Plex Sans KR, sans-serif">우측: 실행 컨텍스트로 수렴</text>
+  <text x="700" y="802" fill="#6B7280" font-size="11" font-family="IBM Plex Sans KR, sans-serif">핵심: DDD 구현은 구조와 협력의 명시화</text>
+</svg>
