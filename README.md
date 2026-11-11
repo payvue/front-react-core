@@ -107,7 +107,7 @@ spring-backend-monolithic
   → 최신 화면 모델 렌더링
 ```
 
-### 전체 시스템 연결
+### 아키텍처 개요
 
 ![Payvue 전체 시스템 아키텍처](https://raw.githubusercontent.com/payvue/spring-backend-monolithic/e3b4a5176adec6ec77c6a8286c4eaa7be9996893/docs/images/architecture/system-architecture-overview.png)
 
@@ -133,11 +133,11 @@ spring-backend-monolithic
 
 거래와 자산 기능의 builder·normalizer는 API 필드와 화면 표현 사이의 번역 계층입니다. 컴포넌트가 백엔드 응답 형식과 상태 코드를 직접 해석하지 않도록 하고, 금액·날짜·카테고리·상태 표시 규칙을 기능 내부에서 일관되게 적용합니다.
 
-### 4. 인증과 결제의 외부 왕복을 Route로 복원합니다
+### 4. 인증과 결제의 외부 호출에 대한 callback을 설계합니다.
 
 Google·GitHub OAuth와 결제는 외부 페이지나 popup을 거쳐 애플리케이션으로 돌아옵니다. `app/auth/oauth/*/callback`, `app/oauth/callback`, `app/payment/*` Route가 결과를 해석하고 인증 상태 또는 결제 진행 상태를 다음 화면으로 연결합니다.
 
-### 5. 실시간 이벤트는 캐시 일관성 신호로 사용합니다
+### 5. 실시간 이벤트는 최신 상태를 갱신합니다.
 
 SSE 이벤트가 도착하면 알림 화면만 갱신하는 데 그치지 않고, 이벤트 종류에 따라 자산 요약·온라인 자산·거래 내역 Query를 무효화합니다. 실제 최신 상태는 다시 REST로 조회하므로 이벤트 payload와 조회 API 사이의 역할을 분리할 수 있습니다.
 
